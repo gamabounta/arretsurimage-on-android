@@ -51,11 +51,6 @@ public class download_video extends AsyncTask<video_url, Void, String> {
 		super();
 		activity = a;
 	}
-	
-	public download_video(Context a, video_url v){
-		this(a);
-		vid = v;
-	}
 
 	protected void onPreExecute() {
 		vid=null;
@@ -188,6 +183,12 @@ public class download_video extends AsyncTask<video_url, Void, String> {
 				+ correctpath + "-" + vid.getNumber() + ".mp4");
 		// + "ASI-"+vid.getTitle()+"-"+vid.getNumber()+".mp4");
 		return (temp);
+	}
+
+	public String get_titre() {
+		if (vid==null)
+			return ("En chargement");
+		return ("ASI-" + vid.getTitle() + "-" + vid.getNumber());
 	}
 
 	public String get_pourcentage_download() {

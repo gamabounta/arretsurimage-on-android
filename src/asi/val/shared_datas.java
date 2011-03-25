@@ -9,7 +9,6 @@ import java.util.Vector;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.AsyncTask.Status;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -32,8 +31,6 @@ public class shared_datas {
 	private Context activity;
 
 	private boolean autologin;
-	
-	private boolean dlsync;
 
 	public shared_datas(Context a) {
 		Log.d("ASI", "create shared");
@@ -45,7 +42,6 @@ public class shared_datas {
 				0);
 		Cookies = settings.getString("cookies", "phorum_session_v5=deleted");
 		autologin = settings.getBoolean("autologin", true);
-		dlsync = settings.getBoolean("dlsync", true);
 
 		this.set_articles_lues();
 	}
@@ -69,21 +65,8 @@ public class shared_datas {
 	}
 
 	public void downloadvideo(video_url url) {
-		download_video d = new download_video(activity, url);
-		if(!dlsync){
-			boolean has_running = false;
-			for(download_video dv : downloading){
-				if(dv.getStatus() == Status.RUNNING){
-					has_running = true;
-					break;
-				}
-			}
-			if(!has_running)
-				d.execute(url);
-			
-		} else{
-			d.execute(url);
-		}
+		download_video d = new download_video(activity);
+		d.execute(url);
 		this.downloading.add(d);
 	}
 
@@ -163,19 +146,6 @@ public class shared_datas {
 			// Log.d("ASI","no_url_lu="+url_article);
 			return (false);
 		}
-	}
-	
-	public void setDlSync(boolean dlsync) {
-		this.dlsync = dlsync;
-		SharedPreferences settings = activity.getSharedPreferences(PREFERENCE,
-				0);
-		Editor editor = settings.edit();
-		editor.putBoolean("dlsync", dlsync);
-		editor.commit();
-	}
-
-	public boolean isDlSync() {
-		return dlsync;
 	}
 
 	public void setAutologin(boolean autologin) {

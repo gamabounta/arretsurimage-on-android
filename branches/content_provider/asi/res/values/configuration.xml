@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="conf_autologin">
+		<item>autologin</item>
+		<item>Auto-login</item>
+		<item>"Se connecter automatiquement au démarrage de l'application"</item>
+	</string-array>
+	<string-array name="conf_dlsync">
+		<item>dlsync</item>
+		<item>Type de téléchargement</item>
+		<item>"Choisir le type de téléchargement souhaité"</item>
+	</string-array>
+	<string-array name="conf_zoom">
+		<item>zoom</item>
+		<item>Taille de la police</item>
+		<item>"Définir le niveau de zoom des articles"</item>
+	</string-array>
+</resources>

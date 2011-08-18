@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="hello">Hello World, main!</string>
+	<string name="app_name">arretsurimages.net</string>
+	<string name="widget_name">arretsurimages.net</string>
+	<color name="color_text">#47637f</color>
+	<color name="color_fond">#ACB7C6</color>
+	<color name="color_white">#FFFFFF</color>
+	<color name="color_black">#000000</color>
+	<style name="shadow">
+		<item name="android:shadowColor">#000000</item>
+		<item name="android:shadowRadius">1.5</item>
+		<item name="android:shadowDx">1</item>
+		<item name="android:shadowDy">1</item>
+	</style>
+	<string name="apropos">"Bienvenue sur l’application officielle d’@rrêt sur images
+
+L’appli permet de visionner les derniers contenus produits par le site : émissions, chroniques, articles de la rédaction et vite-dits.
+
+Pour consulter l’ensemble des contenus, il faut être abonné au site. Les non-abonnés ont accès à la partie gratuite du site (vite-dits, articles de la rédaction de plus de quinze jours et contenus sélectionnés par la rédaction ou votés "gratuits" par les @sinautes).
+
+L’application a été gracieusement développée par Benoît Valot et publiée sous licence GPL.
+
+Pour toute question, merci de vous reporter à l’espace Android du site www.arretsurimages.net ou de nous écrire à android@arretsurimages.net"</string>
+
+<string name="news">"v1.4.2
+
+Ajout dans le menu 'Paramètres' d'une option pour définir la taille des polices dans les articles.
+
+Amélioration de la gestion des erreurs réseaux.
+
+Les liens dans les articles pour zoomer sur une image s'ouvrent directement dans l'application.
+"</string>
+</resources>
+
+

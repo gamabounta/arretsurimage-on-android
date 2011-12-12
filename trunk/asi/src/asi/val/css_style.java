@@ -70,7 +70,7 @@ public class css_style {
 		 data.append(".contenu-html p {margin:0;padding:7px 0 7px 0;line-height:16px!important;}"+"\n");
 		 data.append(".contenu-html table {margin:0 0 7px 0}"+"\n");
 		 //adapter les images
-		 data.append(".contenu-html img {WIDTH:100%;text-align:center;}"+"\n");
+		 data.append(".contenu-html img {WIDTH:100%;text-align:center;max-width:600px;}"+"\n");
 		 
 		 data.append(".contenu-html td {text-align:justify;vertical-align:top !important;line-height:16px!important;}"+"\n");
 		 data.append(".contenu-html em, .contenu-html em * {font-style:italic;line-height:16px!important;}"+"\n");

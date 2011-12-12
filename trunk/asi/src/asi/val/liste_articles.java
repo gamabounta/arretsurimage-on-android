@@ -50,7 +50,7 @@ public class liste_articles extends asi_activity {
 
 	protected Parcelable state;
 	
-	public Vector<String> test;
+	//public Vector<String> test;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -73,11 +73,61 @@ public class liste_articles extends asi_activity {
 			v.setImageResource(image);
 		} else
 			v.setImageResource(R.drawable.toutlesite);
-
-		this.load_content();
+		
+		//On verifie si il n'y a pas la liste d'article
+		if (savedInstanceState != null)
+			Log.d("ASI", "On_create_liste_article_activity_from_old");
+		else
+			this.load_content();
 
 	}
 
+	public void onSaveInstanceState(final Bundle b) {
+		Log.d("ASI", "liste_article save instance");
+		if (this.articles != null) {
+			ArrayList<String> save_article = new ArrayList<String>();
+			for(article art : articles){
+				save_article.add(art.getTitle());
+				save_article.add(art.getDescription());	
+				save_article.add(art.getDate());	
+				save_article.add(art.getUri());
+				save_article.add(art.getColor());	
+			}
+			b.putStringArrayList("liste_data", save_article);
+			//state = maListViewPerso.onSaveInstanceState();
+			//b.putParcelable("etat_liste", state);
+		}
+		super.onSaveInstanceState(b);
+	}
+
+	public void onRestoreInstanceState(final Bundle b) {
+		Log.d("ASI", "onRestoreInstanceState");
+		super.onRestoreInstanceState(b);
+		ArrayList<String> save_article = b.getStringArrayList("liste_data");
+		if (save_article != null) {
+			Log.d("ASI", "Recuperation du content de la page");
+			this.articles = new Vector<article>();
+			for (int i =0; i < save_article.size(); i=i+5){
+				article art = new article();
+				art.setTitle(save_article.get(i));
+				art.setDescription(save_article.get(i+1));
+				art.setDate(save_article.get(i+2));
+				art.setUri(save_article.get(i+3));
+				art.setColor(save_article.get(i+4));
+				this.articles.add(art);
+			}
+			
+			this.load_data();
+			//state = b.getParcelable("etat_liste");
+			//maListViewPerso.onRestoreInstanceState(state);
+			
+		} else {
+			Log.d("ASI", "Rien a recuperer");
+			this.load_content();
+		}
+	}
+	
+	
 	public void load_content() {
 		// TODO Auto-generated method stub
 		// récupération de l'URL des flux RSS
@@ -95,12 +145,6 @@ public class liste_articles extends asi_activity {
 		}
 		//if (state != null)
 			//maListViewPerso.onRestoreInstanceState(state);
-	}
-
-	public void onSaveInstanceState(final Bundle b) {
-		Log.d("ASI", "liste_article onSaveInstanceState");
-		state = maListViewPerso.onSaveInstanceState();
-		super.onSaveInstanceState(b);
 	}
 
 	public ArrayList<HashMap<String, String>> get_listitem() {

@@ -66,12 +66,12 @@
 		<item>"@rrêt sur images"</item>
 		<item>http://www.arretsurimages.net/emissions-asi.rss</item>
 		<item>pola_asi</item>
-		<item>"Ligne j@une"</item>
-		<item>http://www.arretsurimages.net/emissions-lj.rss</item>
-		<item>pola_lj</item>
 		<item>"D@ns le texte;"</item>
 		<item>http://www.arretsurimages.net/emissions-dlt.rss</item>
 		<item>pola_dt</item>
+		<item>"@ux sources"</item>
+		<item>http://www.arretsurimages.net/emissions-src.rss</item>
+		<item>pola_auxsources</item>
 	</string-array>
 	<string-array name="subcatC">
 		<item>"Toutes les chroniques"</item>
@@ -85,7 +85,7 @@
 		<item>kro_judith</item>
 		<item>Chez Alain</item>
 		<item>http://www.arretsurimages.net/chroniqueur.8.rss</item>
-		<item>kro_korkos</item>
+		<item>kro_alain</item>
 		<item>Chez les matinautes</item>
 		<item>http://www.arretsurimages.net/chroniqueur.12.rss</item>
 		<item>kro_neuf_quinze</item>
@@ -101,15 +101,12 @@
 		<item>Chez Didier</item>
 		<item>http://www.arretsurimages.net/chroniqueur.21.rss</item>
 		<item>kro_didier</item>
-		<item>Chez la Parisienne</item>
-		<item>http://www.arretsurimages.net/chroniqueur.24.rss</item>
-		<item>kro_parisienne</item>
 		<item>Chez les sarkosis</item>
 		<item>http://www.arretsurimages.net/chroniqueur.23.rss</item>
 		<item>kro_sarkozi</item>
 		<item>Chez Nous</item>
 		<item>http://www.arretsurimages.net/chroniqueur.1.rss</item>
-		<item>kro</item>
+		<item>kro_nous</item>
 	</string-array>
 </resources>
 

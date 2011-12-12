@@ -157,12 +157,11 @@ public class main_view extends asi_activity {
 			map.put("url", subcategorie[i+1]);				
 			subcatitem.add(map);
 		}		
-		
+
 		SimpleAdapter mSchedule2 = new SimpleAdapter(this.getBaseContext(),
 				subcatitem, R.layout.subcategorie, new String[] { "logo","titre" },
 				new int[] { R.id.subcat_image,R.id.subcat_title });
 		mSchedule2.setViewBinder(new bind_image());
-		
 //		final CharSequence[] subcate = new CharSequence[subcategorie.length / 3];
 //		for (int i = 0; i < subcategorie.length; i += 3) {
 //			subcate[(i / 3)] = subcategorie[i];

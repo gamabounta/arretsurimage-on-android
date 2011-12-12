@@ -49,8 +49,7 @@ public class page extends asi_activity {
 
 		// Récupération de la listview créée dans le fichier main.xml
 		mywebview = (WebView) this.findViewById(R.id.WebViewperso);
-		// String data = savedInstanceState.getString("page_data");
-		// this.onRestoreInstanceState(savedInstanceState);
+
 		Log.d("ASI", "On_create_page_activity");
 		if (savedInstanceState != null)
 			Log.d("ASI", "On_create_page_activity_from_old");
@@ -64,6 +63,8 @@ public class page extends asi_activity {
 		Log.d("ASI", "onSaveInstanceState");
 		if (this.pagedata != null) {
 			b.putString("page_data", this.pagedata);
+			int current_posi = this.mywebview.getProgress();
+			Log.d("ASI", "Current position: "+ current_posi);
 		}
 		super.onSaveInstanceState(b);
 	}
@@ -76,23 +77,23 @@ public class page extends asi_activity {
 			this.pagedata = name;
 			Log.d("ASI", "Récupération du contenu de la page");
 			this.load_page();
+			
 		} else {
 			Log.d("ASI", "Rien a récupérer");
-			//new get_page_content().execute(this.getIntent().getExtras().getString("url"));
 			this.load_content();
 		}
 		// titre de la page
 		setPage_title(this.getIntent().getExtras().getString("titre"));
 	}
-	
-	public void load_content(){
+
+	public void load_content() {
 		new get_page_content().execute(this.getIntent().getExtras()
 				.getString("url"));
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		if (videos!=null && !videos.isEmpty()) {
+		if (videos != null && !videos.isEmpty()) {
 			inflater.inflate(R.layout.emission_menu, menu);
 		} else {
 			inflater.inflate(R.layout.generic_menu, menu);
@@ -123,7 +124,9 @@ public class page extends asi_activity {
 			mywebview.loadDataWithBaseURL("http://www.arretsurimages.net",
 					this.pagedata, mimeType, encoding, null);
 			mywebview.setWebViewClient(new myWebViewClient());
-			mywebview.setInitialScale((int) (this.get_datas().getZoomLevel()*mywebview.getScale()));
+			mywebview
+					.setInitialScale((int) (this.get_datas().getZoomLevel() * mywebview
+							.getScale()));
 
 		} catch (Exception e) {
 			new erreur_dialog(this, "Chargement de la page", e).show();
@@ -191,9 +194,9 @@ public class page extends asi_activity {
 						page.this.startActivity(i);
 
 					} else if (url.matches(".*arretsurimages\\.net\\/media.*")) {
-						//Intent i = new Intent(Intent.ACTION_VIEW);
-//						Uri u = Uri.parse(url);
-//						i.setData(u);
+						// Intent i = new Intent(Intent.ACTION_VIEW);
+						// Uri u = Uri.parse(url);
+						// i.setData(u);
 						Intent i = new Intent(getApplicationContext(),
 								pageImage.class);
 						i.putExtra("url", url);
@@ -261,23 +264,22 @@ public class page extends asi_activity {
 		//
 		// }
 		// });
-		builder.setMessage("Voulez-vous lancer le téléchargement des " + nb_actes
-				+ " vidéos de cet article ?");
-		builder.setNegativeButton("Non",null);
-		builder.setPositiveButton("Oui",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						video_url video_selected = null;
-						for (int i = 0; i < nb_actes; i++) {
-							// if(items_selected[i]) {
-							video_selected = videos.get(i);
-							video_selected.setNumber(i + 1);
-							video_selected.setTitle(page_title);
-							page.this.get_datas().downloadvideo(video_selected);
-							// }
-						}
-					}
-				});
+		builder.setMessage("Voulez-vous lancer le téléchargement des "
+				+ nb_actes + " vidéos de cette article?");
+		builder.setNegativeButton("Non", null);
+		builder.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				video_url video_selected = null;
+				for (int i = 0; i < nb_actes; i++) {
+					// if(items_selected[i]) {
+					video_selected = videos.get(i);
+					video_selected.setNumber(i + 1);
+					video_selected.setTitle(page_title);
+					page.this.get_datas().downloadvideo(video_selected);
+					// }
+				}
+			}
+		});
 		AlertDialog alert = builder.create();
 		alert.show();
 	}
@@ -355,7 +357,8 @@ public class page extends asi_activity {
 			if (error == null) {
 				page.this.load_page();
 			} else {
-				//new erreur_dialog(page.this, "Chargement de la page", error).show();
+				// new erreur_dialog(page.this, "Chargement de la page",
+				// error).show();
 				page.this.erreur_loading(error);
 			}
 		}

@@ -23,13 +23,12 @@ L’application a été gracieusement développée par Benoît Valot et publiée
 
 Pour toute question, merci de vous reporter à l’espace Android du site www.arretsurimages.net ou de nous écrire à android@arretsurimages.net"</string>
 
-<string name="news">"v1.4.2
+<string name="news">"v1.5
+L'application fonctionne enfin en paysage. (pour Vaab)
 
-Ajout dans le menu 'Paramètres' d'une option pour définir la taille des polices dans les articles.
+Mise à jours des émissions et chroniques.
 
-Amélioration de la gestion des erreurs réseaux.
-
-Les liens dans les articles pour zoomer sur une image s'ouvrent directement dans l'application.
+Amélioration du rendu sur tablette.
 "</string>
 </resources>
 

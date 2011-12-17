@@ -23,12 +23,12 @@ L’application a été gracieusement développée par Benoît Valot et publiée
 
 Pour toute question, merci de vous reporter à l’espace Android du site www.arretsurimages.net ou de nous écrire à android@arretsurimages.net"</string>
 
-<string name="news">"v1.5
-L'application fonctionne enfin en paysage. (pour Vaab)
+<string name="news">"v1.6
+Les commentaires sur le forum sont maintenant visibles. Pour y accéder, un lien se trouve en bas de l'article.
 
-Mise à jours des émissions et chroniques.
+Mise à jours des chroniques (Chez les éconautes).
 
-Amélioration du rendu sur tablette.
+Correction des fautes d'orthographes (Merci Loïc).
 "</string>
 </resources>
 

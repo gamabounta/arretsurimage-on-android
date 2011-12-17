@@ -143,6 +143,13 @@ public class css_style {
 
 		 data.append(".bloc-agenda-gris .typo-type-article, .bloc-agenda-gris .typo-titre:hover"+"\n"); 
 		 data.append("{color: #7990a7 !important;}"+"\n");
+		 
+		 //forum manuelle
+		 data.append(".forum-name {color:#999;font-size:12px;}"+"\n");	 
+		 data.append(".forum-content {text-align:justify;padding-top:5px; padding-bottom:5px;}"+"\n");	
+		 data.append(".forum-date {color:#999;font-size:10px;font-style:italic;}"+"\n");
+		 data.append(".forum-comment {padding-top:20px;font-size:14px;color:#030303;}"+"\n");
+		 data.append(".bbcode {padding-left:5px;font-style:italic;}"+"\n");		 
 		
 		return(data.toString());
 	}

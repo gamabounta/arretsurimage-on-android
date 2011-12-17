@@ -53,8 +53,12 @@ public class article {
 	public String getDescription() {
 		return description;
 	}
-
+	
 	public void setDescription(String des) {
+		this.description = des;
+	}
+	
+	public void setDescriptionOnRSS(String des) {
 		des = des.replaceAll("\n", "");
 		//des = des.replaceAll("<br />", "");
 		String[] parse = des.split("<br />");
@@ -84,7 +88,7 @@ public class article {
 			this.color="#3399FF";
 	}
 	
-	public void setDescription_on_recherche(String html) {
+	public void setDescriptionOnRecherche(String html) {
 		html = html.replaceAll("\n", "");
 		html = html.replaceAll("\\s+", " ");
 
@@ -96,7 +100,12 @@ public class article {
 		html = html + " ...";
 		this.description = html;
 	}
-
+	
+	public void setDescriptionOnForum(String html) {
+		html = html.replaceAll("%%", "\n");
+		this.description = html;
+	}
+	
 	public String getUri() {
 		return uri;
 	}

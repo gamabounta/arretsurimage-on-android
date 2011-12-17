@@ -112,7 +112,7 @@ public class page extends asi_activity {
 		}
 	}
 
-	private void load_page() {
+	protected void load_page() {
 		// ac.replaceView(R.layout.pageview);
 		try {
 
@@ -194,13 +194,20 @@ public class page extends asi_activity {
 						page.this.startActivity(i);
 
 					} else if (url.matches(".*arretsurimages\\.net\\/media.*")) {
-						// Intent i = new Intent(Intent.ACTION_VIEW);
-						// Uri u = Uri.parse(url);
-						// i.setData(u);
 						Intent i = new Intent(getApplicationContext(),
 								pageImage.class);
 						i.putExtra("url", url);
 						page.this.startActivity(i);
+						
+					} else if (url.matches(".*arretsurimages\\.net\\/forum.*")) {
+						Intent i = new Intent(getApplicationContext(),
+								ActivityPageForum.class);
+						i.putExtra("titre", page.this.page_title );
+						i.putExtra("color", "#B4DC45");
+						i.putExtra("image", "recherche");
+						i.putExtra("url", url);
+						page.this.startActivity(i);
+						
 					} else if (url
 							.matches(".*arretsurimages\\.net\\/emission.*")) {
 						Toast.makeText(

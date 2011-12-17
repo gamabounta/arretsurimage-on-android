@@ -230,7 +230,7 @@ public class liste_articles extends asi_activity {
 		maListViewPerso.onRestoreInstanceState(state);
 	}
 
-	private void choice_action_item(final String url, final String titre) {
+	protected void choice_action_item(final String url, final String titre) {
 		final CharSequence[] items = { "Visualiser", "Partager",
 				"Marquer comme lu" };
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -283,7 +283,7 @@ public class liste_articles extends asi_activity {
 		// new page(main.this);
 	}
 
-	private void load_page(String url, String titre) {
+	protected void load_page(String url, String titre) {
 		try {
 			Intent i = new Intent(this, page.class);
 			i.putExtra("url", url);

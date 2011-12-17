@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.util.Log;
+
 public class page_load {
 
 	private String content;
@@ -50,6 +52,7 @@ public class page_load {
 	private String getPage() throws Exception {
 		StringBuffer sb = new StringBuffer("");
 		BufferedReader in = null;
+		String forumlink = null;
 		try {
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -71,9 +74,6 @@ public class page_load {
 				ligneCodeHTML = " " + ligneCodeHTML;
 				if (ligneCodeHTML.matches(".*class\\=\"contenu\\-html.*"))
 					data = true;
-				//Pour le forum
-//				if (ligneCodeHTML.matches(".*class\\=\"message prime.*"))
-//					data = true;
 				
 				// on ajoute les lignes typo contenant des informations +
 				if (ligneCodeHTML.contains("bloc-bande-contenu"))
@@ -100,7 +100,20 @@ public class page_load {
 					sb.append(ligneCodeHTML);
 					sb.append("\n");
 				}
-
+				
+				//recupération lien forum
+				//<a href="http://www.arretsurimages.net/forum/read.php?3,1178515,1178515#msg-1178515"><img src="/images/icono/ico_discuter_16.png"> Discuter sur le forum</a></div> 
+				if((start) & (ligneCodeHTML.matches(".*forum\\/read\\.php.*"))){
+					Pattern p = Pattern
+					.compile(".*\\<a href\\=\"(.*forum\\/read\\.php.*)\"\\>\\<img.*");
+					Matcher m = p.matcher(ligneCodeHTML);
+					if (m.matches()) {
+						Log.d("ASI","Lien forum trouvé");
+						forumlink = m.group(1);
+					}
+				}
+				
+				//fin du bloc à prendre
 				// if (ligneCodeHTML.matches(".*class\\=\"bloc\\-contenu.*"))
 				// data = true;
 				if (ligneCodeHTML.matches(".*fin T.l.chargement.*"))
@@ -245,7 +258,15 @@ public class page_load {
 		}
 		if (sb.toString().equalsIgnoreCase(""))
 			return (this.center("Problème de connexion au serveur : essayez de recharger l'article"));
-
+		
+		//lien forum
+		if(forumlink!=null){
+			sb.append("<hr >\n");
+			sb.append("Voir les réactions des asinautes à cette article sur le ");
+			sb.append("<a href=\"");
+			sb.append(forumlink);
+			sb.append("\">forum</a>\n");
+		}
 		// On retourne le stringBuffer
 		// return
 		// "<link href=\"/styles/style.css?new=1\" media=\"all\" rel=\"stylesheet\" type=\"text/css\" /> \n"

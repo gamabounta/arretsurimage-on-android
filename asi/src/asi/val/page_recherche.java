@@ -1,3 +1,18 @@
+/***************************************************************************
+    begin                : aug 01 2010
+    copyright            : (C) 2010 by Benoit Valot
+    email                : benvalot@gmail.com
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 23 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
 package asi.val;
 
 import java.io.BufferedReader;
@@ -88,7 +103,7 @@ public class page_recherche {
 				//récupérer le lien des pages suivantes et le nombre de résultats comme un article ???
 				if(nextpage){
 					if(ligneCodeHTML.contains("typo-info")){
-						article.setDescription_on_recherche(this.convert_html_to_string(ligneCodeHTML));
+						article.setDescriptionOnRecherche(this.convert_html_to_string(ligneCodeHTML));
 					}
 					m = link_next.matcher(ligneCodeHTML);
 					while(m.find()){
@@ -159,7 +174,7 @@ public class page_recherche {
 					
 					if(desc&&ligneCodeHTML.contains("</div>")){
 						desc=false;
-						article.setDescription_on_recherche(this.convert_html_to_string(description.toString()));
+						article.setDescriptionOnRecherche(this.convert_html_to_string(description.toString()));
 						description  = new StringBuffer("");
 						articles.add(article);
 					}

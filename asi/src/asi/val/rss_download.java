@@ -60,7 +60,7 @@ public class rss_download {
 				if (arti.getNodeName().equalsIgnoreCase("title"))
 					ar.setTitle(arti.getFirstChild().getNodeValue());
 				if (arti.getNodeName().equalsIgnoreCase("description"))
-					ar.setDescription(arti.getFirstChild().getNodeValue());
+					ar.setDescriptionOnRSS(arti.getFirstChild().getNodeValue());
 				if (arti.getNodeName().equalsIgnoreCase("link"))
 					ar.setUri(arti.getFirstChild().getNodeValue());
 				if (arti.getNodeName().equalsIgnoreCase("pubDate"))

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	 <item android:id="@id/actionbar_item_home" android:icon="@+drawable/toutlesite"
+        android:title="Arretsurimage.net" />
+	<item android:id="@+id/check_item" android:icon="@+drawable/check_menu_top"
+		android:title="Marquer comme lu"  />
+	<item android:id="@+id/update_item" android:icon="@+drawable/update_menu_top"
+		android:title="Mettre à jour"  />
+</menu>

@@ -3,16 +3,6 @@
 	<string name="hello">Hello World, main!</string>
 	<string name="app_name">arretsurimages.net</string>
 	<string name="widget_name">arretsurimages.net</string>
-	<color name="color_text">#47637f</color>
-	<color name="color_fond">#ACB7C6</color>
-	<color name="color_white">#FFFFFF</color>
-	<color name="color_black">#000000</color>
-	<style name="shadow">
-		<item name="android:shadowColor">#000000</item>
-		<item name="android:shadowRadius">1.5</item>
-		<item name="android:shadowDx">1</item>
-		<item name="android:shadowDy">1</item>
-	</style>
 	<string name="apropos">"Bienvenue sur l’application officielle d’@rrêt sur images
 
 L’appli permet de visionner les derniers contenus produits par le site : émissions, chroniques, articles de la rédaction et vite-dits.

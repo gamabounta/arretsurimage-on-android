@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="color_text">#47637f</color>
+	<color name="color_fond">#ACB7C6</color>
+	<color name="color_white">#FFFFFF</color>
+	<color name="color_black">#000000</color>
+	<color name="color_griser">#f2f2f2</color>	
+	<color name="actionbar_separator">#e9e9e9</color>
+	<color name="actionbar_divider">#e9e9e9</color>
+    <color name="actionbar_background_start">#ffffff</color>
+    <color name="actionbar_background_end">#f2f2f2</color>
+    <color name="actionbar_background_item_pressed_start">#e4e4e4</color>
+    <color name="actionbar_background_item_pressed_end">#bdbdbd</color> 
+    <color name="actionbar_background_dropdown_start">#ffffff</color>
+    <color name="actionbar_background_dropdown_end">#f2f2f2</color>
+    <color name="actionbar_title">#47637f</color>
+    
+</resources>

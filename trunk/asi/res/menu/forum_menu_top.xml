@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	 <item android:id="@id/actionbar_item_home" android:icon="@+drawable/toutlesite"
+        android:title="Arretsurimage.net" />
+	<item android:id="@+id/post_item" android:icon="@+drawable/post_menu_top"
+		android:title="Poster un commentaire" />
+</menu>

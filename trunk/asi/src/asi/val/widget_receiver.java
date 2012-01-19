@@ -9,14 +9,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
 public class widget_receiver extends AppWidgetProvider {
-
-	public static final String PREFERENCE = "asi_pref";
 
 	public static final String SHOW_CURRENT = "asi.val.action.SHOW_CURRENT";
 
@@ -26,7 +25,7 @@ public class widget_receiver extends AppWidgetProvider {
 
 	public static final String UPDATE_WIDGET = "asi.val.action.UPDATE_WIDGET";
 
-	private Vector<article> articles;
+	private Vector<Article> articles;
 
 	private String url = "http://www.arretsurimages.net/tous-les-contenus.rss";
 
@@ -52,32 +51,57 @@ public class widget_receiver extends AppWidgetProvider {
 			appWidgetManager.updateAppWidget(appWidgetId, views);
 
 			try {
-				rss_download d = new rss_download(url);
-				Log.d("ASI", "widget téléchargement");
+				Log.d("ASI", "Lancement widget téléchargement");
 				if (i == 0) {
-					d.get_rss_articles();
-					articles = d.getArticles();
-					// on recherche si ils sont déjà lus
-					articles = this.get_new_articles(articles, context);
-					Log.d("ASI", "download_articles:" + articles.size());
-				} else
-					articles = this.get_datas(context).get_widget_article();
+					GetArticleWidget getArticleWidget = new GetArticleWidget(
+							context, appWidgetIds);
+					getArticleWidget.execute(this.url);
+				}
+			} catch (Exception e) {
+				views.setTextViewText(R.id.widget_message,
+						"Erreur de mise à jour");
+				appWidgetManager.updateAppWidget(appWidgetId, views);
+				String error = e.toString() + "\n" + e.getStackTrace()[0]
+						+ "\n" + e.getStackTrace()[1];
+				Log.e("ASI", "Error widget " + error);
+			}
+		}
+	}
+
+	public void updateArticles(Vector<Article> articlesBackground,
+			Context context, int[] appWidgetIds) {
+		RemoteViews views = new RemoteViews(context.getPackageName(),
+				R.layout.widget_asi);
+		AppWidgetManager appWidgetManager = AppWidgetManager
+				.getInstance(context);
+		this.defined_intent(context, views, appWidgetIds);
+		int appWidgetId;
+		articles = articlesBackground;
+
+		for (int i = 0; i < appWidgetIds.length; i++) {
+			Log.d("ASI", "Widget update article:" + appWidgetIds[i]);
+			appWidgetId = appWidgetIds[i];
+			try {
+				articles = articlesBackground;
+				if (articles == null || articles.size() == 0)
+					throw new Exception("Erreur de telechargement");
+				articles = this.get_new_articles(articles, context);
+				Log.d("ASI", "download_articles:" + articles.size());
+
+				Toast.makeText(context, "ASI widget à jour", Toast.LENGTH_SHORT)
+						.show();
+
 				if (articles.size() == 0)
 					throw new StopException("Pas de nouvel article");
 				views.setTextViewText(R.id.widget_message, articles
 						.elementAt(0).getTitle());
-				// views.setInt(R.id.widget_message, "setBackgroundResource",
-				// Color.parseColor(articles.elementAt(0).getColor()));
 				views.setTextColor(R.id.widget_color,
 						Color.parseColor(articles.elementAt(0).getColor()));
 				views.setTextViewText(R.id.widget_next_texte,
 						"1/" + articles.size());
 
-				// Tell the AppWidgetManager to perform an update on the current
-				// App Widget
 				appWidgetManager.updateAppWidget(appWidgetId, views);
-				Toast.makeText(context, "ASI widget à jour", Toast.LENGTH_SHORT)
-						.show();
+
 			} catch (StopException e) {
 				views.setTextViewText(R.id.widget_message,
 						"Aucun article non lu");
@@ -87,13 +111,17 @@ public class widget_receiver extends AppWidgetProvider {
 				views.setTextViewText(R.id.widget_message,
 						"Erreur de mise à jour");
 				appWidgetManager.updateAppWidget(appWidgetId, views);
-				Log.e("ASI", "Error widget " + e.getMessage());
+				String error = e.toString() + "\n" + e.getStackTrace()[0]
+						+ "\n" + e.getStackTrace()[1];
+				Log.e("ASI", "Error widget " + error);
 			} finally {
 				if (articles == null) {
-					articles = new Vector<article>();
+					articles = new Vector<Article>();
 				}
-				this.get_datas(context).save_widget_article(articles);
-				this.get_datas(context).save_widget_posi(0);
+				if (i == 0) {
+					this.get_datas(context).save_widget_article(articles);
+					this.get_datas(context).save_widget_posi(0);
+				}
 			}
 		}
 	}
@@ -112,13 +140,13 @@ public class widget_receiver extends AppWidgetProvider {
 		views.setOnClickPendingIntent(R.id.widget_asi, pendingIntent);
 
 		// lien vers la page des vidéos
-		intent = new Intent(context, download_view.class);
+		intent = new Intent(context, ActivityDownloadCurrent.class);
 		pendingIntent = PendingIntent.getActivity(context, 0, intent,
 				PendingIntent.FLAG_UPDATE_CURRENT);
 		views.setOnClickPendingIntent(R.id.widget_art, pendingIntent);
 
 		// lien vers la page des téléchargements
-		intent = new Intent(context, SD_video_view.class);
+		intent = new Intent(context, ActivityVideoOnSd.class);
 		pendingIntent = PendingIntent.getActivity(context, 0, intent,
 				PendingIntent.FLAG_UPDATE_CURRENT);
 		views.setOnClickPendingIntent(R.id.widget_emi, pendingIntent);
@@ -154,10 +182,10 @@ public class widget_receiver extends AppWidgetProvider {
 		views.setOnClickPendingIntent(R.id.widget_next, pendingIntent);
 	}
 
-	private void defined_article(RemoteViews views,Context context,int posi){
+	private void defined_article(RemoteViews views, Context context, int posi) {
 		if (articles.size() != 0) {
-			views.setTextViewText(R.id.widget_message,
-					articles.elementAt(posi).getTitle());
+			views.setTextViewText(R.id.widget_message, articles.elementAt(posi)
+					.getTitle());
 			// views.setInt(R.id.widget_message, "setBackgroundResource",
 			// Color.parseColor(articles.elementAt(posi).getColor()));
 			views.setTextColor(R.id.widget_color,
@@ -170,14 +198,14 @@ public class widget_receiver extends AppWidgetProvider {
 				views.setViewVisibility(R.id.widget_check, View.VISIBLE);
 			else
 				views.setViewVisibility(R.id.widget_check, View.INVISIBLE);
-		}else{
-			views.setTextViewText(R.id.widget_message,"Aucun article non lu");
+		} else {
+			views.setTextViewText(R.id.widget_message, "Aucun article non lu");
 			views.setTextColor(R.id.widget_color, R.color.color_text);
 			views.setTextViewText(R.id.widget_next_texte, "0/0");
 			views.setViewVisibility(R.id.widget_check, View.INVISIBLE);
 		}
 	}
-	
+
 	public void onReceive(Context context, Intent intent) {
 		// v1.5 fix that doesn't call onDelete Action
 		final String action = intent.getAction();
@@ -191,10 +219,9 @@ public class widget_receiver extends AppWidgetProvider {
 				this.onDeleted(context, new int[] { appWidgetId });
 			}
 		} else if (SHOW_CURRENT.equals(action)) {
-			articles = this.get_datas(context)
-					.get_widget_article();
+			articles = this.get_datas(context).get_widget_article();
 			int posi = this.get_datas(context).get_widget_posi();
-			intent = new Intent(context, page.class);
+			intent = new Intent(context, ActivityPage.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			if (posi < articles.size()) {
 				intent.putExtra("url", articles.elementAt(posi).getUri());
@@ -206,17 +233,16 @@ public class widget_receiver extends AppWidgetProvider {
 			// On met l'article courant lu et on rend visible l'image check
 			this.defined_article(views, context, posi);
 			views.setViewVisibility(R.id.widget_check, View.VISIBLE);
-			
+
 			ComponentName thisWidget = new ComponentName(context,
 					widget_receiver.class);
 			AppWidgetManager manager = AppWidgetManager.getInstance(context);
 			// On redéfinit les actions sur les éléments du widget
 			this.defined_intent(context, views,
 					manager.getAppWidgetIds(thisWidget));
-			manager.updateAppWidget(thisWidget, views);		
+			manager.updateAppWidget(thisWidget, views);
 		} else if (SHOW_NEXT.equals(action)) {
-			articles = this.get_datas(context)
-					.get_widget_article();
+			articles = this.get_datas(context).get_widget_article();
 			int posi = this.get_datas(context).get_widget_posi();
 
 			if ((posi + 1) == articles.size())
@@ -228,21 +254,6 @@ public class widget_receiver extends AppWidgetProvider {
 			RemoteViews views = new RemoteViews(context.getPackageName(),
 					R.layout.widget_asi);
 			this.defined_article(views, context, posi);
-//			views.setViewVisibility(R.id.widget_check, View.INVISIBLE);
-//			if (articles.size() != 0) {
-//				views.setTextViewText(R.id.widget_message,
-//						articles.elementAt(posi).getTitle());
-//				// views.setInt(R.id.widget_message, "setBackgroundResource",
-//				// Color.parseColor(articles.elementAt(posi).getColor()));
-//				views.setTextColor(R.id.widget_color,
-//						Color.parseColor(articles.elementAt(posi).getColor()));
-//				this.get_datas(context).save_widget_posi(posi);
-//				views.setTextViewText(R.id.widget_next_texte, (posi + 1) + "/"
-//						+ articles.size());
-//				if (this.get_datas(context).contain_articles_lues(
-//						articles.elementAt(posi).getUri()))
-//					views.setViewVisibility(R.id.widget_check, View.VISIBLE);
-//			}
 
 			ComponentName thisWidget = new ComponentName(context,
 					widget_receiver.class);
@@ -256,8 +267,7 @@ public class widget_receiver extends AppWidgetProvider {
 			manager.updateAppWidget(thisWidget, views);
 			// appWidgetManager.updateAppWidget(appWidgetId, views);
 		} else if (CHECK_CURRENT.equals(action)) {
-			articles = this.get_datas(context)
-					.get_widget_article();
+			articles = this.get_datas(context).get_widget_article();
 			int posi = this.get_datas(context).get_widget_posi();
 			if (posi < articles.size())
 				this.get_datas(context).add_articles_lues(
@@ -265,9 +275,9 @@ public class widget_receiver extends AppWidgetProvider {
 			RemoteViews views = new RemoteViews(context.getPackageName(),
 					R.layout.widget_asi);
 			// On met l'article courant lu et on rend visible l'image check
-			//views.setViewVisibility(R.id.widget_check, View.VISIBLE);
+			// views.setViewVisibility(R.id.widget_check, View.VISIBLE);
 			this.defined_article(views, context, posi);
-			
+
 			ComponentName thisWidget = new ComponentName(context,
 					widget_receiver.class);
 			AppWidgetManager manager = AppWidgetManager.getInstance(context);
@@ -298,10 +308,9 @@ public class widget_receiver extends AppWidgetProvider {
 		Log.d("ASI", "deleted widget");
 	}
 
-	private Vector<article> get_new_articles(Vector<article> articles2,
+	private Vector<Article> get_new_articles(Vector<Article> articles2,
 			Context c) {
-		// TODO Auto-generated method stub
-		Vector<article> ar = new Vector<article>();
+		Vector<Article> ar = new Vector<Article>();
 		for (int i = 0; i < articles2.size(); i++) {
 			if (!this.get_datas(c).contain_articles_lues(
 					articles2.elementAt(i).getUri()))
@@ -310,12 +319,54 @@ public class widget_receiver extends AppWidgetProvider {
 		return (ar);
 	}
 
-	public shared_datas get_datas(Context c) {
-		shared_datas datas = shared_datas.shared;
+	public SharedDatas get_datas(Context c) {
+		SharedDatas datas = SharedDatas.shared;
 		if (datas == null)
-			return (new shared_datas(c));
+			return (new SharedDatas(c));
 		datas.setContext(c);
 		return datas;
+	}
+
+	private class GetArticleWidget extends AsyncTask<String, Void, Void> {
+
+		private Vector<Article> articlesBackground;
+
+		private Context context;
+
+		private int[] appWidgetIds;
+
+		public GetArticleWidget(Context c, int[] Ids) {
+			context = c;
+			appWidgetIds = Ids;
+		}
+
+		// can use UI thread here
+		protected void onPreExecute() {
+			articlesBackground = null;
+		}
+
+		// automatically done on worker thread (separate from UI thread)
+		protected Void doInBackground(String... args) {
+			try {
+				DownloadRSS d = new DownloadRSS(args[0]);
+				d.get_rss_articles();
+				articlesBackground = d.getArticles();
+				Log.d("ASI", "widget telechargement termine");
+
+			} catch (Exception e) {
+				String error = e.toString() + "\n" + e.getStackTrace()[0]
+						+ "\n" + e.getStackTrace()[1];
+				Log.e("ASI", error);
+			}
+			return (null);
+
+		}
+
+		protected void onPostExecute(Void result) {
+			widget_receiver.this.updateArticles(articlesBackground, context,
+					appWidgetIds);
+		}
+
 	}
 
 }

@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 import android.util.Log;
 
-public class page_load {
+public class PageLoading {
 
 	private String content;
 
@@ -34,25 +34,27 @@ public class page_load {
 
 	private String cookies;
 	
-	private ArrayList<video_url> videos;
+	private String forum_link;
 	
-	public ArrayList<video_url> getVideos() {
+	private ArrayList<Video> videos;
+	
+	public ArrayList<Video> getVideos() {
 		return videos;
 	}
 
-	public page_load(String u) throws Exception {
+	public PageLoading(String u) throws Exception {
 		setContent("");
 		u.replaceAll(" ", "");
 		url = new URL(u);
 		//cookies = main.group.getCookies();
-		cookies = shared_datas.shared.getCookies();
-		videos = new ArrayList<video_url>();
+		cookies = SharedDatas.shared.getCookies();
+		videos = new ArrayList<Video>();
 	}
 
 	private String getPage() throws Exception {
 		StringBuffer sb = new StringBuffer("");
 		BufferedReader in = null;
-		String forumlink = null;
+		forum_link = null;
 		try {
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -109,7 +111,7 @@ public class page_load {
 					Matcher m = p.matcher(ligneCodeHTML);
 					if (m.matches()) {
 						Log.d("ASI","Lien forum trouvé");
-						forumlink = m.group(1);
+						forum_link = m.group(1);
 					}
 				}
 				
@@ -151,7 +153,7 @@ public class page_load {
 					// on enlève les animations flash et recupère les vidéos
 					// iphone
 					if (ligneCodeHTML.matches(".*iphone\\.dailymotion\\.com.*")) {
-						video_url video = new video_url();
+						Video video = new Video();
 						String s = video.parse_to_url(ligneCodeHTML);
 						if (s == null)
 							;
@@ -260,11 +262,11 @@ public class page_load {
 			return (this.center("Problème de connexion au serveur : essayez de recharger l'article"));
 		
 		//lien forum
-		if(forumlink!=null){
+		if(forum_link!=null){
 			sb.append("<hr >\n");
-			sb.append("Voir les réactions des asinautes à cette article sur le ");
+			sb.append("Voir les réactions des asinautes à cet article sur le ");
 			sb.append("<a href=\"");
-			sb.append(forumlink);
+			sb.append(forum_link);
 			sb.append("\">forum</a>\n");
 		}
 		// On retourne le stringBuffer
@@ -299,9 +301,17 @@ public class page_load {
 	public String get_style() {
 		StringBuffer sb2 = new StringBuffer("");
 		sb2.append("<style type=\"text/css\">");
-		sb2.append(new css_style().get_css_data());
+		sb2.append(new PageCssStyle().get_css_data());
 		sb2.append("</style>");
 		return (sb2.toString());
+	}
+
+	public void setForum_link(String forum_link) {
+		this.forum_link = forum_link;
+	}
+
+	public String getForum_link() {
+		return forum_link;
 	}
 
 }

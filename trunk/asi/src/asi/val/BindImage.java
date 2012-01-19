@@ -15,38 +15,21 @@
 
 package asi.val;
 
-import android.os.Bundle;
-import android.webkit.WebView;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.SimpleAdapter.ViewBinder;
 
-public class pageImage extends asi_activity {
-	/** Called when the activity is first created. */
+public class BindImage implements ViewBinder {
 
-	private WebView mywebview;
-
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		setContentView(R.layout.pageview);
-
-		// Récupération de la listview créée dans le fichier main.xml
-		mywebview = (WebView) this.findViewById(R.id.WebViewperso);
-		
-		this.load_page();
-	}
-
-	private void load_page() {
-		// ac.replaceView(R.layout.pageview);
-		try {
-			// on charge l'URL de l'image dans la webview
-			mywebview.loadUrl(this.getIntent().getExtras()
-			.getString("url"));
-			mywebview.getSettings().setBuiltInZoomControls(true);
-
-		} catch (Exception e) {
-			new erreur_dialog(this, "Chargement de l'image", e).show();
+	public boolean setViewValue(View arg0, Object arg1, String arg2) {
+		// TODO Auto-generated method stub	
+		if(arg2.contains("png-")){
+			ImageView vi = (ImageView) arg0;
+			arg2 = arg2.replaceFirst("png-", "");
+			vi.setImageResource(Integer.parseInt(arg2));
+			return(true);
 		}
-
+		return false;
 	}
-
 
 }

@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 
+import com.markupartist.android.widget.ActionBar;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -30,14 +32,12 @@ import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class SD_video_view extends reload_activity {
+public class ActivityVideoOnSd extends ActivityReloadBase {
 	private ListView maListViewPerso;
 
 	private Vector<File> video_sd;
@@ -48,15 +48,15 @@ public class SD_video_view extends reload_activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		
 		// Récupération de la listview créée dans le fichier main.xml
 		maListViewPerso = (ListView) findViewById(R.id.listviewperso);
 
-		TextView text = (TextView) findViewById(R.id.list_text);
-		// Ajout de l'image
-		ImageView v = (ImageView) findViewById(R.id.cat_image);
-		v.setImageResource(R.drawable.video);
-
-		text.setText("Vidéos téléchargées");
+		ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
+		getMenuInflater().inflate(R.menu.video_menu_top, actionBar.asMenu());
+		actionBar.setTitle("Vidéos téléchargées");
+		actionBar.setDisplayShowHomeEnabled(true);
+		
 		video_sd = new Vector<File>();
 
 		//this.load_data();
@@ -86,11 +86,11 @@ public class SD_video_view extends reload_activity {
 				}
 			}
 		} catch (StopException e) {
-			new erreur_dialog(this, "Lecture de la carte SD", e.toString())
+			new DialogError(this, "Lecture de la carte SD", e.toString())
 					.show();
 			this.update.stop_update();
 		} catch (Exception e) {
-			new erreur_dialog(this, "Lecture de la carte SD", e).show();
+			new DialogError(this, "Lecture de la carte SD", e).show();
 			this.update.stop_update();
 		}
 
@@ -140,7 +140,7 @@ public class SD_video_view extends reload_activity {
 				HashMap<String, String> map = (HashMap<String, String>) maListViewPerso
 						.getItemAtPosition(position);
 				if (!map.get("int").equals("null"))
-					SD_video_view.this.traitement_video(map.get("int"));
+					ActivityVideoOnSd.this.traitement_video(map.get("int"));
 			}
 		});
 
@@ -159,11 +159,11 @@ public class SD_video_view extends reload_activity {
 					Intent intent = new Intent();
 					intent.setAction(android.content.Intent.ACTION_VIEW);
 					intent.setDataAndType(Uri.fromFile(vid), "video/*");
-					SD_video_view.this.startActivity(intent);
+					ActivityVideoOnSd.this.startActivity(intent);
 				} else if (items[item].equals("Supprimer")) {
 					if (vid.exists())
 						vid.delete();
-					Toast.makeText(SD_video_view.this, "Fichier supprimé",
+					Toast.makeText(ActivityVideoOnSd.this, "Fichier supprimé",
 							Toast.LENGTH_SHORT).show();
 				}
 				// SD_video_view.this.load_data();
@@ -180,8 +180,7 @@ public class SD_video_view extends reload_activity {
 			this.do_on_video(vid);
 
 		} catch (Exception e) {
-			new erreur_dialog(this, "Traitement de la vidéo", e).show();
+			new DialogError(this, "Traitement de la vidéo", e).show();
 		}
-
 	}
 }

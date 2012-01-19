@@ -3,20 +3,21 @@ package asi.val;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.markupartist.android.widget.ActionBar;
+
 import android.app.AlertDialog;
 import android.appwidget.AppWidgetManager;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class configuration extends asi_activity {
+public class ActivityConfiguration extends ActivityAsiBase {
 
 	int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 
@@ -25,17 +26,14 @@ public class configuration extends asi_activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		
+		ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
+		getMenuInflater().inflate(R.menu.back_menu_top, actionBar.asMenu());
+		actionBar.setTitle("Paramètres");
+		actionBar.setDisplayShowHomeEnabled(true);
 
 		// Récupération de la listview créée dans le fichier main.xml
 		maListViewPerso = (ListView) findViewById(R.id.listviewperso);
-
-		// gratuit = this.getIntent().getExtras().getBoolean("gratuit");
-		TextView text = (TextView) findViewById(R.id.list_text);
-		// TextView color = (TextView) findViewById(R.id.cat_color);
-		text.setText("Paramètres");
-
-		ImageView v = (ImageView) findViewById(R.id.cat_image);
-		v.setImageResource(R.drawable.toutlesite);
 
 		this.load_data();
 
@@ -77,11 +75,11 @@ public class configuration extends asi_activity {
 				HashMap<String, String> map = (HashMap<String, String>) maListViewPerso
 						.getItemAtPosition(position);
 				if (map.get("type").equalsIgnoreCase("autologin"))
-					configuration.this.do_on_autologin(map.get("titre"));
+					ActivityConfiguration.this.do_on_autologin(map.get("titre"));
 				if (map.get("type").equalsIgnoreCase("dlsync"))
-					configuration.this.do_on_dlsync(map.get("titre"));
+					ActivityConfiguration.this.do_on_dlsync(map.get("titre"));
 				if (map.get("type").equalsIgnoreCase("zoom"))
-					configuration.this.do_on_zoom(map.get("titre"));
+					ActivityConfiguration.this.do_on_zoom(map.get("titre"));
 			}
 		});
 	}
@@ -97,9 +95,9 @@ public class configuration extends asi_activity {
 		    public void onClick(DialogInterface dialog, int item) {
 		       // Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
 				if (items[item].equals("Oui")) {
-					configuration.this.get_datas().setAutologin(true);
+					ActivityConfiguration.this.get_datas().setAutologin(true);
 				} else {
-					configuration.this.get_datas().setAutologin(false);
+					ActivityConfiguration.this.get_datas().setAutologin(false);
 				}
 				dialog.dismiss();
 			}
@@ -119,9 +117,9 @@ public class configuration extends asi_activity {
 		    public void onClick(DialogInterface dialog, int item) {
 		       // Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
 				if (items[item].equals("Parallèle")) {
-					configuration.this.get_datas().setDlSync(true);
+					ActivityConfiguration.this.get_datas().setDlSync(true);
 				} else {
-					configuration.this.get_datas().setDlSync(false);
+					ActivityConfiguration.this.get_datas().setDlSync(false);
 				}
 				dialog.dismiss();
 			}
@@ -146,11 +144,17 @@ public class configuration extends asi_activity {
 		builder.setSingleChoiceItems(items, posi, new DialogInterface.OnClickListener() {
 		    public void onClick(DialogInterface dialog, int item) {
 		       // Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
-				configuration.this.get_datas().setZoomLevel(zoomlevel[item]);
+				ActivityConfiguration.this.get_datas().setZoomLevel(zoomlevel[item]);
 				dialog.dismiss();
 			}
 		});
 		AlertDialog alert = builder.create();
 		alert.show();
 	}
+	
+	public boolean onCreateOptionsMenu(Menu menu) {
+		//Aucun menu
+		return true;
+	}
+	
 }

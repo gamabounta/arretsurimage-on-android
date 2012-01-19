@@ -28,26 +28,26 @@ import java.util.regex.Pattern;
 
 import android.util.Log;
 
-public class page_recherche {
+public class PageRecherche {
 
 	private URL url;
 
 	private String post;
 
-	private Vector<article> articles;
+	private Vector<Article> articles;
 	
 	private HTMLEntities convert = new HTMLEntities();
 
-	public page_recherche(String u) throws MalformedURLException {
+	public PageRecherche(String u) throws MalformedURLException {
 		// lancer directement une recherche depuis un lien
 		url = new URL(u);
-		articles = new Vector<article>();
+		articles = new Vector<Article>();
 		post="";
 	}
 
-	public page_recherche() throws MalformedURLException {
+	public PageRecherche() throws MalformedURLException {
 		// créer une recherche
-		articles = new Vector<article>();
+		articles = new Vector<Article>();
 		url = new URL("http://www.arretsurimages.net/recherche.php");
 		post="";
 	}
@@ -56,7 +56,7 @@ public class page_recherche {
 		post=p;
 	}
 
-	public Vector<article> getArticles() throws Exception {
+	public Vector<Article> getArticles() throws Exception {
 		BufferedReader in = null;
 		OutputStreamWriter out = null;
 		try {
@@ -78,7 +78,7 @@ public class page_recherche {
 			StringBuffer description = new StringBuffer("");
 			boolean start = false;
 			boolean nextpage=false;
-			article article = new article();
+			Article article = new Article();
 			//élément de recherche
 			Matcher m ;
 			Pattern date = Pattern.compile(".*\\<span class\\=\"typo-date\"\\>(.*?)\\<\\/span\\>.*");
@@ -91,7 +91,7 @@ public class page_recherche {
 				
 				if(articles.size()>30&&ligneCodeHTML.contains("rech-filtres-droite")){
 					nextpage=true;
-					article = new article();
+					article = new Article();
 					article.setTitle("Plus de résultats");
 					article.setDate(">");
 					start = false;
@@ -133,7 +133,7 @@ public class page_recherche {
 			//on récupère les informations de chaque article;
 				if (ligneCodeHTML.contains("bloc-contenu-5")||ligneCodeHTML.contains("bloc-contenu-6")){//bloc-rech
 					start = true;
-					article = new article();
+					article = new Article();
 					article.set_color_from_recherche(ligneCodeHTML);
 				}
 				if (ligneCodeHTML.contains("rech-filtres-gauche"))//recherche.php

@@ -15,52 +15,65 @@
 
 package asi.val;
 
+import com.markupartist.android.widget.ActionBar;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.SpinnerAdapter;
 
-public class asi_activity extends Activity {
+public class ActivityAsiBase extends Activity {
 
-	protected shared_datas datas;
+	protected SharedDatas datas;
+	
+	public void onResume() {
+		super.onResume();
+		ActionBar actionBar = (ActionBar) this.findViewById(R.id.actionbar);
+		if (actionBar != null && actionBar.getNavigationMode()==ActionBar.NAVIGATION_MODE_LIST) {
+			Log.d("ASI", "Navigation mode onResume");
+			actionBar.setSelectedNavigationItem(0);
+		}
+	}
 
-	public shared_datas get_datas() {
-		datas = shared_datas.shared;
+	public SharedDatas get_datas() {
+		datas = SharedDatas.shared;
 		if (datas == null)
-			return (new shared_datas(this));
+			return (new SharedDatas(this));
 		datas.setContext(this);
 		return datas;
 	}
-	
+
 	public void load_content() {
-		
+
 	}
-	
-	protected void erreur_loading(String error){
-		Log.e("ASI",error);
+
+	protected void erreur_loading(String error) {
+		Log.e("ASI", error);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("Une erreur réseau s'est produite lors du chargement.")
+		builder.setMessage(
+				"Une erreur réseau s'est produite lors du chargement.")
 				.setCancelable(false)
 				.setPositiveButton("Réessayer",
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								asi_activity.this.load_content();
+								ActivityAsiBase.this.load_content();
 							}
 						})
 				.setNegativeButton("Annuler",
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								asi_activity.this.finish();
+								ActivityAsiBase.this.finish();
 							}
 						});
 		AlertDialog quitte = builder.create();
 		quitte.show();
 	}
-	
+
 	public void closed_application() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Quitter ?");
@@ -69,8 +82,9 @@ public class asi_activity extends Activity {
 				.setPositiveButton("Oui",
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								asi_activity.this.get_datas().stop_all_download();
-								asi_activity.this.finish();
+								ActivityAsiBase.this.get_datas()
+										.stop_all_download();
+								ActivityAsiBase.this.finish();
 							}
 						})
 				.setNegativeButton("Non",
@@ -83,26 +97,51 @@ public class asi_activity extends Activity {
 		quitte.show();
 	}
 
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.layout.generic_menu, menu);
-		return true;
+	public void addNavigationToActionBar(ActionBar actionBar, String title) {
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		String[] option = new String[] { title, "Téléchargements",
+				"Vidéos téléchargées" };
+		SpinnerAdapter adapter = new ArrayAdapter<String>(this,
+				R.layout.actionbar_list_dropdown_item, option);
+		actionBar.setListNavigationCallbacks(adapter,
+				new ActionBar.OnNavigationListener() {
+					public boolean onNavigationItemSelected(int itemPosition,
+							long itemId) {
+						if (itemPosition == 1) {
+							Intent i = new Intent(ActivityAsiBase.this, ActivityDownloadCurrent.class);
+							ActivityAsiBase.this.startActivity(i);
+						} else if (itemPosition == 2){
+							Intent i = new Intent(ActivityAsiBase.this, ActivityVideoOnSd.class);
+							ActivityAsiBase.this.startActivity(i);
+						}
+						return true;
+					}
+				});
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		switch (item.getItemId()) {
-		case R.id.item1:
-			Intent i = new Intent(this, download_view.class);
+		case R.id.actionbar_item_home:
+			Intent i = new Intent(Intent.ACTION_VIEW);
+			Uri u = Uri.parse("http://www.arretsurimages.net/");
+			i.setData(u);
+			startActivity(i);
+			return true;
+		case R.id.itemback:
+			this.finish();
+			return true;
+		case R.id.telechargement_item:
+			i = new Intent(this, ActivityDownloadCurrent.class);
 			this.startActivity(i);
 			return true;
-		case R.id.item2:
-			Intent i2 = new Intent(this, SD_video_view.class);
-			this.startActivity(i2);
+		case R.id.video_item:
+			i = new Intent(this, ActivityVideoOnSd.class);
+			this.startActivity(i);
 			return true;
-		case R.id.item3:
-			Intent i3 = new Intent(this, configuration.class);
-			this.startActivity(i3);
+		case R.id.param_item:
+			i = new Intent(this, ActivityConfiguration.class);
+			this.startActivity(i);
 			return true;
 		case R.id.info_item:
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);

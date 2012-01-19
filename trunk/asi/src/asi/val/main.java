@@ -24,8 +24,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.StringTokenizer;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import com.markupartist.android.widget.ActionBar;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -41,7 +41,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class main extends asi_activity {
+public class main extends ActivityAsiBase {
 
 	//private String Cookies;
 
@@ -61,7 +61,11 @@ public class main extends asi_activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login);
 		Log.d("ASI", "Main create");
-		// Récupération de la listview créée dans le fichier main.xml
+		
+		ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
+		getMenuInflater().inflate(R.menu.param_menu_top, actionBar.asMenu());
+		actionBar.setDisplayShowHomeEnabled(true);
+		
 		txt_username = (EditText) findViewById(R.id.txt_username);
 
 		txt_password = (EditText) findViewById(R.id.txt_password);
@@ -73,40 +77,34 @@ public class main extends asi_activity {
 
 		this.button_load();
 
-		// On lie l'activity
-		//main.group = this;
-
 		// autologin activé
 		this.autologin = this.get_datas().isAutologin();
 
-		// on récupère l'ancien cookie
-		//Cookies = settings.getString("cookies", "");
-
 		// on teste la version de l'application, si mise à jour, alors ajout
 		// d'un message sur les nouveautés
-		int old_version = settings.getInt("old_version", 34);
-		if (old_version < 43) {
-			this.show_news_dialog();
-			SharedPreferences.Editor editor = settings.edit();
-			editor.putInt("old_version", 43);
-			editor.commit();
-			this.autologin=false;
-		}
+//		int old_version = settings.getInt("old_version", 34);
+//		if (old_version < 43) {
+//			this.show_news_dialog();
+//			SharedPreferences.Editor editor = settings.edit();
+//			editor.putInt("old_version", 43);
+//			editor.commit();
+//			this.autologin=false;
+//		}
 	}
 
-	private void show_news_dialog() {
-		// TODO Auto-generated method stub
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("Nouveautés");
-		builder.setMessage(R.string.news);
-		builder.setCancelable(false);
-		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
-				dialog.cancel();
-			}
-		});
-		builder.create().show();
-	}
+//	private void show_news_dialog() {
+//		// TODO Auto-generated method stub
+//		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//		builder.setTitle("Nouveautés");
+//		builder.setMessage(R.string.news);
+//		builder.setCancelable(false);
+//		builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//			public void onClick(DialogInterface dialog, int id) {
+//				dialog.cancel();
+//			}
+//		});
+//		builder.create().show();
+//	}
 
 	public void onStart() {
 		super.onStart();
@@ -138,10 +136,10 @@ public class main extends asi_activity {
 			String donneeStr = donnees.toString();
 			new get_cookies_value().execute(donneeStr);
 		} catch (StopException e) {
-			new erreur_dialog(main.this, "Connexion au site", e.toString())
+			new DialogError(main.this, "Connexion au site", e.toString())
 					.show();
 		} catch (Exception e) {
-			new erreur_dialog(main.this, "Connexion au site", e).show();
+			new DialogError(main.this, "Connexion au site", e).show();
 		}
 	}
 
@@ -159,7 +157,7 @@ public class main extends asi_activity {
 	}
 
 	private class get_cookies_value extends AsyncTask<String, Void, String> {
-		private final progress_dialog dialog = new progress_dialog(main.this,
+		private final DialogProgress dialog = new DialogProgress(main.this,
 				this);
 
 		private BufferedReader in;
@@ -255,7 +253,7 @@ public class main extends asi_activity {
 				main.this.save_login_password(mess);
 				main.this.load_page(false);
 			} else {
-				new erreur_dialog(main.this, "Connexion au site", mess).show();
+				new DialogError(main.this, "Connexion au site", mess).show();
 			}
 		}
 	};
@@ -268,14 +266,14 @@ public class main extends asi_activity {
 
 	private void load_page(boolean gratuit) {
 		try {
-			Intent i = new Intent(this, main_view.class);
+			Intent i = new Intent(this, ActivityCategorie.class);
 			i.putExtra("gratuit", gratuit);
 			this.startActivity(i);
 			if(this.datas.isAutologin())
 				this.finish();
 
 		} catch (Exception e) {
-			new erreur_dialog(main.this, "Chargement des catégories", e).show();
+			new DialogError(main.this, "Chargement des catégories", e).show();
 		}
 		// new page(main.this);
 	}

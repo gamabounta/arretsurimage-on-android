@@ -15,9 +15,9 @@
 
 package asi.val;
 
-public class css_style {
+public class PageCssStyle {
 
-	public css_style(){
+	public PageCssStyle(){
 		
 	}
 	
@@ -34,7 +34,7 @@ public class css_style {
 		data.append("hr  {display:block;height:1px;_margin:-7px 0;color:#808080;background-color:#808080;clear:both}"+"\n");
 		data.append("body *  {line-height:1.22em;}"+"\n");
 		//ajout des bordures
-		data.append("body { padding-left:6px; padding-right:2px;}"+"\n");		
+		data.append("body { padding-left:10px; padding-right:10px;}"+"\n");		
 		data.append("input[type=submit],input[type=button] {overflow:visible;_width:1px}"+"\n");
 		data.append("button,input.button {overflow:visible;_width:1px}"+"\n");
 		data.append("textarea {height:58px;overflow-y:scroll}"+"\n");
@@ -148,7 +148,7 @@ public class css_style {
 		 data.append(".forum-name {color:#999;font-size:12px;}"+"\n");	 
 		 data.append(".forum-content {text-align:justify;padding-top:5px; padding-bottom:5px;}"+"\n");	
 		 data.append(".forum-date {color:#999;font-size:10px;font-style:italic;}"+"\n");
-		 data.append(".forum-comment {padding-top:20px;font-size:14px;color:#030303;}"+"\n");
+		 data.append(".forum-comment {padding-top:10px;padding-bottom:10px;font-size:14px;color:#030303;}"+"\n");
 		 data.append(".bbcode {padding-left:5px;font-style:italic;}"+"\n");		 
 		
 		return(data.toString());

@@ -28,9 +28,9 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
-public class download_video extends AsyncTask<String, Void, String> {
+public class DownloadVideo extends AsyncTask<String, Void, String> {
 
-	private video_url vid;
+	private Video vid;
 
 	private FileOutputStream out;
 
@@ -44,9 +44,9 @@ public class download_video extends AsyncTask<String, Void, String> {
 
 	private boolean cancel;
 	
-	private shared_datas share;
+	private SharedDatas share;
 	
-	public download_video(shared_datas share, video_url v){
+	public DownloadVideo(SharedDatas share, Video v){
 		this.share = share;
 		vid = v;
 		error = null;
@@ -207,7 +207,7 @@ public class download_video extends AsyncTask<String, Void, String> {
 		this.error = er;
 	}
 
-	public video_url get_download_video() {
+	public Video get_download_video() {
 		// TODO Auto-generated method stub
 		return this.vid;
 	}

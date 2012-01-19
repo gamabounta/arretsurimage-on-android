@@ -22,12 +22,18 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import android.util.Log;
 
 public class PageForum {
 
 	private URL url;
 
 	private HTMLEntities convert = new HTMLEntities();
+	
+	private ForumPost forumPost = new ForumPost();
 
 	public PageForum(String u) throws MalformedURLException {
 		// lancer directement une recherche depuis un lien
@@ -43,7 +49,7 @@ public class PageForum {
 
 			conn.setDoOutput(true);
 
-			conn.setRequestProperty("Cookie", shared_datas.shared.getCookies());
+			conn.setRequestProperty("Cookie", SharedDatas.shared.getCookies());
 
 			// on lit la réponse
 			in = new BufferedReader(
@@ -52,7 +58,12 @@ public class PageForum {
 			String ligneCodeHTML;
 			boolean desc = false;
 			boolean start = false;
-			article article = new article();
+			boolean post = false;
+			Article article = new Article();
+			//élément de recherche
+			Matcher m ;
+			Pattern postPattern = Pattern.compile(".*\\<input type\\=\"hidden\" name\\=\"(.*?)\" value\\=\"(.*?)\".*");
+			//<input type="hidden" name="forum_id" value="12" />
 
 			while ((ligneCodeHTML = in.readLine()) != null) {
 				ligneCodeHTML = " " + ligneCodeHTML;
@@ -69,19 +80,11 @@ public class PageForum {
 				// lien vers le commentaire
 				if (ligneCodeHTML.contains("<a name=\"msg-")) {
 					start = true;
-//					article = new article();
-//					article.setColor("#B4DC45");
-//					Log.d("ASI", "New article");
-//					
-//					m = url.matcher(ligneCodeHTML);
-//					if(m.find()){
-//						article.setUri(m.group(1));
-//						Log.d("ASI","url="+m.group(1));
-//					}
 				}
 				
 				if (ligneCodeHTML.contains("<div id=\"post\">")) {
 					start = false;
+					post=true;
 				}
 
 				if (start) {
@@ -110,11 +113,20 @@ public class PageForum {
 						desc = false;
 						parsehtml.append("<p class=\"forum-date\">"+article.getDate()+"</p>\n");
 						parsehtml.append("</div>\n");
+						parsehtml.append("<hr />\n");
 					}
 					if (desc) {
 						parsehtml.append(ligneCodeHTML);
 					}
 
+				}
+				
+				if(post==true){
+					m = postPattern.matcher(ligneCodeHTML);
+					while(m.find()){
+						Log.d("asi","type="+m.group(1)+",value="+m.group(2));
+						this.forumPost.addHiddenValue(m.group(1),m.group(2));
+					}
 				}
 
 			}
@@ -149,8 +161,12 @@ public class PageForum {
 	public String get_style() {
 		StringBuffer sb2 = new StringBuffer("");
 		sb2.append("<style type=\"text/css\">");
-		sb2.append(new css_style().get_css_data());
+		sb2.append(new PageCssStyle().get_css_data());
 		sb2.append("</style>");
 		return (sb2.toString());
+	}
+	
+	public ForumPost getForumPost() {
+		return forumPost;
 	}
 }

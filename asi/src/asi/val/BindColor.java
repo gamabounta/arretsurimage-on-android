@@ -15,29 +15,30 @@
 
 package asi.val;
 
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.os.AsyncTask;
-import android.view.KeyEvent;
+import android.graphics.Color;
+import android.view.View;
+import android.widget.SimpleAdapter.ViewBinder;
 
-public class progress_dialog extends ProgressDialog{
-	
-	public progress_dialog(Context arg0,final AsyncTask<?, ?, ?> async) {
-		super(arg0);
-		this.setOnKeyListener(new OnKeyListener(){
-			public boolean onKey(DialogInterface arg0, int arg1,
-					KeyEvent arg2) {
-				if (arg1 == KeyEvent.KEYCODE_BACK && arg2.getRepeatCount() == 0) {
-					arg0.dismiss();
-					if((async!=null)&&(!async.getStatus().toString().equals("FINISHED")))
-						async.cancel(true);
-					return true;
-				}
-				// TODO Auto-generated method stub
-				return false;
+public class BindColor implements ViewBinder {
+
+	public boolean setViewValue(View arg0, Object arg1, String arg2) {
+		// TODO Auto-generated method stub
+		
+		if (arg2.matches("#\\w+")) {
+			arg0.setBackgroundColor(Color.parseColor(arg2));
+			return (true);
+		} else if (arg2.contains("enabled-")) {
+			//Log.d("ASI","bind_color_enabled"+" "+arg2);
+			if (arg2.contains("true")){
+				//Log.d("ASI","bind_color_enabled"+" "+arg2);
+				arg0.setBackgroundColor(Color.parseColor("#e7e7e7"));
 			}
-			
-		});
+			else{
+				arg0.setBackgroundColor(Color.parseColor("#ffffff"));
+			}
+			return (true);
+		}
+		return false;
 	}
+
 }

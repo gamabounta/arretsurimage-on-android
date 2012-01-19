@@ -18,6 +18,8 @@ package asi.val;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.markupartist.android.widget.ActionBar;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,15 +27,15 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class main_view extends asi_activity {
+public class ActivityCategorie extends ActivityAsiBase {
 	private ListView maListViewPerso;
 
 	private boolean gratuit;
@@ -41,16 +43,19 @@ public class main_view extends asi_activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		
+		//récupération de l'actionBar
+		ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
+		getMenuInflater().inflate(R.menu.categorie_menu_top, actionBar.asMenu());
+		this.addNavigationToActionBar(actionBar, "Choix des catégories");
+		//actionBar.setTitle("Choix des catégories");
+
+		actionBar.setDisplayShowHomeEnabled(true);
+		
 		// Récupération de la listview créée dans le fichier main.xml
 		maListViewPerso = (ListView) findViewById(R.id.listviewperso);
 
 		gratuit = this.getIntent().getExtras().getBoolean("gratuit");
-		TextView text = (TextView) findViewById(R.id.list_text);
-		// TextView color = (TextView) findViewById(R.id.cat_color);
-		text.setText("Choix des catégories");
-		
-		ImageView v = (ImageView) findViewById(R.id.cat_image);
-		v.setImageResource(R.drawable.toutlesite);
 		
 		this.load_data();
 
@@ -89,7 +94,7 @@ public class main_view extends asi_activity {
 				listItem, R.layout.categorie_listes, new String[] { "color","titre" },
 				new int[] { R.id.cat_color, R.id.cat_title });
 		//on ajoute le viewbinder 
-		mSchedule.setViewBinder(new bind_color());
+		mSchedule.setViewBinder(new BindColor());
 
 		// On attribue à notre listView l'adapter que l'on vient de créer
 		maListViewPerso.setAdapter(mSchedule);
@@ -104,27 +109,27 @@ public class main_view extends asi_activity {
 				HashMap<String, String> map = (HashMap<String, String>) maListViewPerso
 						.getItemAtPosition(position);
 				if(map.get("url").equalsIgnoreCase("recherche"))
-					main_view.this.do_recherche(map.get("titre"),
+					ActivityCategorie.this.do_recherche(map.get("titre"),
 							map.get("color"),map.get("image"));
 				else if (map.get("subcat").equalsIgnoreCase("no"))
-					main_view.this.load_page(map.get("url"), map.get("titre"),
+					ActivityCategorie.this.load_page(map.get("url"), map.get("titre"),
 							map.get("color"),map.get("image"));
 				else
-					main_view.this.do_on_long_clic(map.get("subcat"), map
+					ActivityCategorie.this.do_on_long_clic(map.get("subcat"), map
 							.get("titre"),map.get("color"));
 			}
 		});
 	}
 
 	protected void do_recherche(String titre, String color, String image) {
-		new recherche_dialog(this, titre,color,image)
+		new DialogRecherche(this, titre,color,image)
 		.show();
 		
 	}
 
 	private void load_page(String url, String titre, String color, String image) {
 		try {
-			Intent i = new Intent(this, liste_articles.class);
+			Intent i = new Intent(this, ActivityListArticle.class);
 			i.putExtra("url", url);
 			i.putExtra("titre", titre);
 			i.putExtra("color", color);
@@ -132,7 +137,7 @@ public class main_view extends asi_activity {
 			this.startActivity(i);
 
 		} catch (Exception e) {
-			new erreur_dialog(this, "Chargement de la liste des articles", e)
+			new DialogError(this, "Chargement de la liste des articles", e)
 					.show();
 		}
 	}
@@ -161,7 +166,7 @@ public class main_view extends asi_activity {
 		SimpleAdapter mSchedule2 = new SimpleAdapter(this.getBaseContext(),
 				subcatitem, R.layout.subcategorie, new String[] { "logo","titre" },
 				new int[] { R.id.subcat_image,R.id.subcat_title });
-		mSchedule2.setViewBinder(new bind_image());
+		mSchedule2.setViewBinder(new BindImage());
 //		final CharSequence[] subcate = new CharSequence[subcategorie.length / 3];
 //		for (int i = 0; i < subcategorie.length; i += 3) {
 //			subcate[(i / 3)] = subcategorie[i];
@@ -171,7 +176,7 @@ public class main_view extends asi_activity {
 		
 		builder.setAdapter(mSchedule2, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int item) {
-				main_view.this.load_page(subcategorie[item * 3 + 1],
+				ActivityCategorie.this.load_page(subcategorie[item * 3 + 1],
 						subcategorie[item * 3], color_fin,subcategorie[item * 3 + 2]);
 			}
 			});
@@ -199,6 +204,12 @@ public class main_view extends asi_activity {
 		}
 
 		return super.onKeyDown(keyCode, event);
+	}
+	
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.layout.full_menu, menu);
+		return true;
 	}
 
 }

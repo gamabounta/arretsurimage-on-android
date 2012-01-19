@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 
+import com.markupartist.android.widget.ActionBar;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,16 +31,14 @@ import android.os.AsyncTask.Status;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class download_view extends reload_activity {
+public class ActivityDownloadCurrent extends ActivityReloadBase {
 	private ListView maListViewPerso;
 
-	private Vector<download_video> video_download;
+	private Vector<DownloadVideo> video_download;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -46,12 +46,11 @@ public class download_view extends reload_activity {
 		// Récupération de la listview créée dans le fichier main.xml
 		maListViewPerso = (ListView) findViewById(R.id.listviewperso);
 
-		ImageView v = (ImageView) findViewById(R.id.cat_image);
-		v.setImageResource(R.drawable.telechargement);
-
-		TextView text = (TextView) findViewById(R.id.list_text);
-
-		text.setText("Téléchargements en cours");
+		ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
+		getMenuInflater().inflate(R.menu.download_menu_top, actionBar.asMenu());
+		actionBar.setTitle("Téléchargements en cours");
+		actionBar.setDisplayShowHomeEnabled(true);
+		
 		// récuperation de la liste de téléchargements
 		this.video_download = this.get_datas().get_download_video();
 
@@ -67,7 +66,7 @@ public class download_view extends reload_activity {
 		// Création de la ArrayList qui nous permettra de remplir la listView
 		ArrayList<HashMap<String, String>> listItem = new ArrayList<HashMap<String, String>>();
 		HashMap<String, String> map;
-		download_video dvid;
+		DownloadVideo dvid;
 		//
 		// teste de remplissage
 		// for(int j=0;j<10;j++){
@@ -147,7 +146,7 @@ public class download_view extends reload_activity {
 				HashMap<String, String> map = (HashMap<String, String>) maListViewPerso
 						.getItemAtPosition(position);
 				if (!map.get("int").equals("null"))
-					download_view.this.traitement_video(map.get("int"));
+					ActivityDownloadCurrent.this.traitement_video(map.get("int"));
 			}
 		});
 
@@ -155,19 +154,19 @@ public class download_view extends reload_activity {
 		maListViewPerso.onRestoreInstanceState(state);
 	}
 
-	private void do_on_video_error(final download_video vid) throws Exception {
+	private void do_on_video_error(final DownloadVideo vid) throws Exception {
 		final CharSequence[] items = { "Relancer", "Effacer", "Erreur" };
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(vid.get_download_video().getTitle_and_number());
 		builder.setItems(items, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int item) {
 				if (items[item].equals("Relancer")) {
-					download_view.this.get_datas().get_download_video().remove(vid);
-					download_view.this.get_datas().downloadvideo(vid.get_download_video());
+					ActivityDownloadCurrent.this.get_datas().get_download_video().remove(vid);
+					ActivityDownloadCurrent.this.get_datas().downloadvideo(vid.get_download_video());
 				} else if (items[item].equals("Effacer")) {
-					download_view.this.get_datas().get_download_video().remove(vid);
+					ActivityDownloadCurrent.this.get_datas().get_download_video().remove(vid);
 				} else {
-					new erreur_dialog(download_view.this, vid.get_download_video().getTitle_and_number(), vid
+					new DialogError(ActivityDownloadCurrent.this, vid.get_download_video().getTitle_and_number(), vid
 							.get_error()).show();
 				}
 				// download_view.this.load_data();
@@ -177,7 +176,7 @@ public class download_view extends reload_activity {
 		alert.show();
 	}
 
-	private void do_on_video_running(final download_video vid) throws Exception {
+	private void do_on_video_running(final DownloadVideo vid) throws Exception {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(vid.get_download_video().getTitle_and_number());
 		builder.setMessage("Arrêter le téléchargement en cours ?")
@@ -198,7 +197,7 @@ public class download_view extends reload_activity {
 		stop.show();
 	}
 
-	private void do_on_video_finished(final download_video vid)
+	private void do_on_video_finished(final DownloadVideo vid)
 			throws Exception {
 		final CharSequence[] items = { "Visualiser", "Effacer", "Relancer" };
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -211,12 +210,12 @@ public class download_view extends reload_activity {
 					intent.setAction(android.content.Intent.ACTION_VIEW);
 					intent.setDataAndType(
 							Uri.fromFile(vid.get_download_path()), "video/*");
-					download_view.this.startActivity(intent);
+					ActivityDownloadCurrent.this.startActivity(intent);
 				} else if (items[item].equals("Effacer")) {
-					download_view.this.get_datas().get_download_video().remove(vid);
+					ActivityDownloadCurrent.this.get_datas().get_download_video().remove(vid);
 				} else if (items[item].equals("Relancer")) {
-					download_view.this.get_datas().get_download_video().remove(vid);
-					download_view.this.get_datas().downloadvideo(vid.get_download_video());
+					ActivityDownloadCurrent.this.get_datas().get_download_video().remove(vid);
+					ActivityDownloadCurrent.this.get_datas().downloadvideo(vid.get_download_video());
 				}
 				// download_view.this.load_data();
 			}
@@ -228,7 +227,7 @@ public class download_view extends reload_activity {
 	private void traitement_video(String num) {
 		try {
 			Log.d("ASI", "Num=" + num);
-			download_video vid = video_download
+			DownloadVideo vid = video_download
 					.elementAt(Integer.parseInt(num));
 			Status status = vid.getStatus();
 			Log.d("ASI", "Status=" + status.toString());
@@ -243,7 +242,7 @@ public class download_view extends reload_activity {
 			}
 
 		} catch (Exception e) {
-			new erreur_dialog(this, "Traitement de la vidéo", e).show();
+			new DialogError(this, "Traitement de la vidéo", e).show();
 		}
 
 	}

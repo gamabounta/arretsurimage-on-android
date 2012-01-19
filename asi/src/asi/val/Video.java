@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 import android.util.Log;
 
-public class video_url {
+public class Video {
 
 	private String dailymotion;
 	 
@@ -35,12 +35,12 @@ public class video_url {
 	
 	private String image;
 	
-	public video_url(String url) {
+	public Video(String url) {
 		this.set_dailymotion_url(url);
 		this.image="";
 	}
 
-	public video_url() {
+	public Video() {
 		this.dailymotion = "";
 		this.title = "ASI";
 		this.image="";
@@ -159,6 +159,15 @@ public class video_url {
 		Log.d("ASI","vidurl="+this.dailymotion);
 		Log.d("ASI","vidnum="+this.number);
 	}
+	
+	public void setURL(String url) {
+		this.dailymotion = url;
+	}
+
+	public String getURL() {
+		return dailymotion;
+	}
+	
 
 	public void setTitle(String page_title) {
 		this.title = page_title;

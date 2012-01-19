@@ -16,17 +16,19 @@
 package asi.val;
 
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 
-public class reload_activity extends asi_activity {
+public class ActivityReloadBase extends ActivityAsiBase {
 	
 	protected auto_updated update;
 	
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		MenuInflater inflater = getMenuInflater();
-//		inflater.inflate(R.layout.download_menu, menu);
-//		return true;
-//	}
-//
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.layout.param_menu, menu);
+		return true;
+	}
+
 //	public boolean onOptionsItemSelected(MenuItem item) {
 //		// Handle item selection
 //		switch (item.getItemId()) {
@@ -67,7 +69,7 @@ public class reload_activity extends asi_activity {
 			this.stop = false;
 			run = new Runnable() {
 			    public void run() {
-					reload_activity.this.load_data();
+					ActivityReloadBase.this.load_data();
 			    }
 			};
 		}

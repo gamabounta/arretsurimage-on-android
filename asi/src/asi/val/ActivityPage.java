@@ -17,6 +17,8 @@ package asi.val;
 
 import java.util.ArrayList;
 
+import com.markupartist.android.widget.ActionBar;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,11 +29,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-public class page extends asi_activity {
+public class ActivityPage extends ActivityAsiBase {
 	/** Called when the activity is first created. */
 
 	private WebView mywebview;
@@ -40,31 +43,55 @@ public class page extends asi_activity {
 
 	private String page_title;
 
-	protected ArrayList<video_url> videos;
+	private String forum_link;
+
+	protected ArrayList<Video> videos;
+
+	protected ActionBar actionBar;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.pageview);
 
+		// titre de la page
+		setPage_title(this.getIntent().getExtras().getString("titre"));
+
 		// Récupération de la listview créée dans le fichier main.xml
 		mywebview = (WebView) this.findViewById(R.id.WebViewperso);
+
+		this.actionBar = (ActionBar) findViewById(R.id.actionbar);
+		this.actionBarInflateMenu(actionBar);
 
 		Log.d("ASI", "On_create_page_activity");
 		if (savedInstanceState != null)
 			Log.d("ASI", "On_create_page_activity_from_old");
 		else
 			this.load_content();
-		// titre de la page
-		setPage_title(this.getIntent().getExtras().getString("titre"));
+	}
+
+	protected void actionBarInflateMenu(ActionBar actionBar) {
+		getMenuInflater().inflate(R.menu.page_menu_top, actionBar.asMenu());
+		this.addNavigationToActionBar(actionBar, this.getPage_title());
+		// actionBar.setDisplayShowHomeEnabled(true);
 	}
 
 	public void onSaveInstanceState(final Bundle b) {
 		Log.d("ASI", "onSaveInstanceState");
 		if (this.pagedata != null) {
 			b.putString("page_data", this.pagedata);
-			int current_posi = this.mywebview.getProgress();
-			Log.d("ASI", "Current position: "+ current_posi);
+		}
+		if (this.videos != null && !this.videos.isEmpty()) {
+			ArrayList<String> videoSave = new ArrayList<String>();
+			for (Video v : this.videos) {
+				videoSave.add(v.getTitle());
+				videoSave.add("" + v.getNumber());
+				videoSave.add(v.getURL());
+			}
+			b.putStringArrayList("video_links", videoSave);
+		}
+		if (this.forum_link != null) {
+			b.putString("forum_link", forum_link);
 		}
 		super.onSaveInstanceState(b);
 	}
@@ -76,8 +103,22 @@ public class page extends asi_activity {
 		if (name != null) {
 			this.pagedata = name;
 			Log.d("ASI", "Récupération du contenu de la page");
-			this.load_page();
+			this.forum_link = b.getString("forum_link");
 			
+			ArrayList<String> videoSave = b.getStringArrayList("video_links");
+			if (videoSave != null && !videoSave.isEmpty()) {
+				this.videos = new ArrayList<Video>();
+				Video v;
+				for (int i = 0; i < (videoSave.size()-2); i = (i + 3)) {
+					v = new Video();
+					v.setTitle(videoSave.get(i));
+					v.setNumber(Integer.parseInt(videoSave.get(i + 1)));
+					v.setURL(videoSave.get(i + 2));
+					this.videos.add(v);
+				}
+			}
+			this.load_page();
+
 		} else {
 			Log.d("ASI", "Rien a récupérer");
 			this.load_content();
@@ -96,7 +137,7 @@ public class page extends asi_activity {
 		if (videos != null && !videos.isEmpty()) {
 			inflater.inflate(R.layout.emission_menu, menu);
 		} else {
-			inflater.inflate(R.layout.generic_menu, menu);
+			inflater.inflate(R.layout.full_menu, menu);
 		}
 		return true;
 	}
@@ -104,8 +145,17 @@ public class page extends asi_activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		switch (item.getItemId()) {
-		case R.id.item5:
+		case R.id.telechargement_video_item:
 			telecharger_actes();
+			return true;
+		case R.id.itemshare:
+			Intent emailIntent = new Intent(Intent.ACTION_SEND);
+			emailIntent.putExtra(Intent.EXTRA_TEXT,
+					"Un article interessant sur le site arretsurimage.net :\n"
+							+ this.page_title + "\n" + this.getIntent().getExtras().getString("url"));
+			emailIntent.setType("text/plain");
+			startActivity(Intent.createChooser(emailIntent,
+					"Partager cet article"));
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -115,6 +165,38 @@ public class page extends asi_activity {
 	protected void load_page() {
 		// ac.replaceView(R.layout.pageview);
 		try {
+			// On ajoute les boutons si videos ou forum
+			if (this.forum_link != null) {
+				actionBar.addAction(actionBar
+						.newAction()
+						.setIcon(R.drawable.forum_menu_top)
+						.setOnMenuItemClickListener(
+								new OnMenuItemClickListener() {
+									public boolean onMenuItemClick(MenuItem item) {
+										Intent i = new Intent(
+												getApplicationContext(),
+												ActivityPageForum.class);
+										i.putExtra("titre",
+												ActivityPage.this.page_title);
+										i.putExtra("color", "#B4DC45");
+										i.putExtra("image", "forum");
+										i.putExtra("url",
+												ActivityPage.this.forum_link);
+										ActivityPage.this.startActivity(i);
+										return true;
+									}
+								}));
+			}
+			if (this.videos != null && !this.videos.isEmpty()) {
+				actionBar.addAction(actionBar.newAction()
+						.setIcon(R.drawable.telechargement_video_menu_top)
+						.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+							public boolean onMenuItemClick(MenuItem item) {
+								ActivityPage.this.telecharger_actes();
+								return true;
+							}
+						}));
+			}
 
 			// les définitions de type mime et de l'encodage
 			final String mimeType = "text/html";
@@ -129,7 +211,7 @@ public class page extends asi_activity {
 							.getScale()));
 
 		} catch (Exception e) {
-			new erreur_dialog(this, "Chargement de la page", e).show();
+			new DialogError(this, "Chargement de la page", e).show();
 		}
 
 	}
@@ -148,25 +230,25 @@ public class page extends asi_activity {
 							.matches(".*arretsurimages\\.net\\/contenu.*")) {
 						Log.d("ASI", "Chargement arrêt sur image");
 						Intent i = new Intent(getApplicationContext(),
-								page.class);
+								ActivityPage.class);
 						i.putExtra("url", url);
-						page.this.startActivity(i);
+						ActivityPage.this.startActivity(i);
 					} else if (url.matches(".*arretsurimages\\.net\\/vite.*")) {
 						Log.d("ASI", "Chargement arrêt sur image");
 						Intent i = new Intent(getApplicationContext(),
-								page.class);
+								ActivityPage.class);
 						i.putExtra("url", url);
-						page.this.startActivity(i);
+						ActivityPage.this.startActivity(i);
 					} else if (url
 							.matches(".*arretsurimages\\.net\\/dossier.*")) {
 						Log.d("ASI", "Dossier lancé");
 						Intent i = new Intent(getApplicationContext(),
-								liste_articles_recherche.class);
+								ActivityListArticleRecherche.class);
 						i.putExtra("titre", "DOSSIER");
 						i.putExtra("color", "#3399FF");
 						i.putExtra("image", "articles");
 						i.putExtra("url", url);
-						page.this.startActivity(i);
+						ActivityPage.this.startActivity(i);
 						// Toast.makeText(
 						// page.this,
 						// "Les liens vers les dossiers ne sont pas pris en charge !",
@@ -175,48 +257,48 @@ public class page extends asi_activity {
 							.matches(".*arretsurimages\\.net\\/recherche.*")) {
 						Log.d("ASI", "Recherche lancé");
 						Intent i = new Intent(getApplicationContext(),
-								liste_articles_recherche.class);
+								ActivityListArticleRecherche.class);
 						i.putExtra("titre", "RECHERCHE");
 						i.putExtra("color", "#ACB7C6");
 						i.putExtra("image", "recherche");
 						i.putExtra("url", url);
-						page.this.startActivity(i);
+						ActivityPage.this.startActivity(i);
 
 					} else if (url
 							.matches(".*arretsurimages\\.net\\/chroniqueur.*")) {
 						Log.d("ASI", "Chronique lancé");
 						Intent i = new Intent(getApplicationContext(),
-								liste_articles_recherche.class);
+								ActivityListArticleRecherche.class);
 						i.putExtra("titre", "CHRONIQUES");
 						i.putExtra("color", "#FF398E");
 						i.putExtra("image", "kro");
 						i.putExtra("url", url);
-						page.this.startActivity(i);
+						ActivityPage.this.startActivity(i);
 
 					} else if (url.matches(".*arretsurimages\\.net\\/media.*")) {
 						Intent i = new Intent(getApplicationContext(),
-								pageImage.class);
+								ActivityPageImage.class);
 						i.putExtra("url", url);
-						page.this.startActivity(i);
-						
+						ActivityPage.this.startActivity(i);
+
 					} else if (url.matches(".*arretsurimages\\.net\\/forum.*")) {
 						Intent i = new Intent(getApplicationContext(),
 								ActivityPageForum.class);
-						i.putExtra("titre", page.this.page_title );
+						i.putExtra("titre", ActivityPage.this.page_title);
 						i.putExtra("color", "#B4DC45");
-						i.putExtra("image", "recherche");
+						i.putExtra("image", "forum");
 						i.putExtra("url", url);
-						page.this.startActivity(i);
-						
+						ActivityPage.this.startActivity(i);
+
 					} else if (url
 							.matches(".*arretsurimages\\.net\\/emission.*")) {
 						Toast.makeText(
-								page.this,
+								ActivityPage.this,
 								"Ce lien n'est pas visible sur l'application Android",
 								Toast.LENGTH_LONG).show();
 					} else {
 						Toast.makeText(
-								page.this,
+								ActivityPage.this,
 								"Ce lien n'est pas visible sur l'application Android : ouverture du navigateur",
 								Toast.LENGTH_LONG).show();
 						Intent i = new Intent(Intent.ACTION_VIEW);
@@ -228,7 +310,7 @@ public class page extends asi_activity {
 				} else if (url
 						.matches(".*http\\:\\/\\/iphone\\.dailymotion\\.com.*")) {
 					Log.d("ASI", "Chargement video");
-					page.this.video_choice(url);
+					ActivityPage.this.video_choice(url);
 					return (true);
 				} else {
 					Intent i = new Intent(Intent.ACTION_VIEW);
@@ -238,7 +320,8 @@ public class page extends asi_activity {
 					return (true);
 				}
 			} catch (Exception e) {
-				new erreur_dialog(page.this, "Chargement du lien", e).show();
+				new DialogError(ActivityPage.this, "Chargement du lien", e)
+						.show();
 				return false;
 			}
 		}
@@ -253,36 +336,22 @@ public class page extends asi_activity {
 
 	public void telecharger_actes() {
 		final int nb_actes = videos.size();
-		// final CharSequence[] items = new CharSequence[nb_actes];
-		// final boolean[] items_selected = new boolean[nb_actes];
-		//
-		// for(int i = 0; i < nb_actes; i++) {
-		// items[i] = "Acte " + (i + 1);
-		// items_selected[i] = true;
-		// }
+
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Vidéos de l'article");
-		// builder.setMultiChoiceItems(items, items_selected, new
-		// DialogInterface.OnMultiChoiceClickListener() {
-		//
-		// public void onClick(DialogInterface dialog, int which, boolean
-		// isChecked) {
-		// items_selected[which] = isChecked;
-		//
-		// }
-		// });
+
 		builder.setMessage("Voulez-vous lancer le téléchargement des "
 				+ nb_actes + " vidéos de cette article?");
 		builder.setNegativeButton("Non", null);
 		builder.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
-				video_url video_selected = null;
+				Video video_selected = null;
 				for (int i = 0; i < nb_actes; i++) {
 					// if(items_selected[i]) {
 					video_selected = videos.get(i);
 					video_selected.setNumber(i + 1);
 					video_selected.setTitle(page_title);
-					page.this.get_datas().downloadvideo(video_selected);
+					ActivityPage.this.get_datas().downloadvideo(video_selected);
 					// }
 				}
 			}
@@ -298,15 +367,11 @@ public class page extends asi_activity {
 		builder.setItems(items, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int item) {
 				if (items[item].equals("Visionner")) {
-					// Intent i = new Intent(getApplicationContext(),
-					// video_view.class);
-					// i.putExtra("url", url);
-					// startActivity(i);
 					new get_video_url().execute(url);
 				} else {
-					video_url vid = new video_url(url);
+					Video vid = new Video(url);
 					vid.setTitle(page_title);
-					page.this.get_datas().downloadvideo(vid);
+					ActivityPage.this.get_datas().downloadvideo(vid);
 				}
 			}
 		});
@@ -319,9 +384,32 @@ public class page extends asi_activity {
 		return pagedata;
 	}
 
+	public void setPage_title(String page_title) {
+		if (page_title != null) {
+			this.page_title = page_title;
+			Log.d("ASI", this.page_title);
+		} else {
+			Log.d("ASI", "pas de titre");
+			this.page_title = "Sans titre";
+		}
+	}
+
+	public void setForumLink(String link) {
+		this.forum_link = link;
+	}
+
+	public void setVideo(ArrayList<Video> videos2) {
+		// AJoute le bouton si video n'est pas vide
+		this.videos = videos2;
+	}
+
+	public String getPage_title() {
+		return page_title;
+	}
+
 	private class get_page_content extends AsyncTask<String, Void, String> {
-		private final progress_dialog dialog = new progress_dialog(page.this,
-				this);
+		private final DialogProgress dialog = new DialogProgress(
+				ActivityPage.this, this);
 
 		// can use UI thread here
 		protected void onPreExecute() {
@@ -335,22 +423,21 @@ public class page extends asi_activity {
 
 		// automatically done on worker thread (separate from UI thread)
 		protected String doInBackground(String... args) {
-			// List<String> names =
-			// Main.this.application.getDataHelper().selectAll();
-			// this.publishProgress("Chargement...");
 			try {
-				page_load page_d = new page_load(args[0]);
+				PageLoading page_d = new PageLoading(args[0]);
 
-				page.this.setPagedata(page_d.getContent());
-				page.this.setVideo(page_d.getVideos());
+				ActivityPage.this.setPagedata(page_d.getContent());
+				ActivityPage.this.setVideo(page_d.getVideos());
+				ActivityPage.this.setForumLink(page_d.getForum_link());
 
-				page.this.get_datas().add_articles_lues(args[0]);
+				ActivityPage.this.get_datas().add_articles_lues(args[0]);
 			} catch (Exception e) {
 				// String error = e.toString() + "\n" + e.getStackTrace()[0]
 				// + "\n" + e.getStackTrace()[1];
 				String error = e.getMessage();
 				return (error);
 			}
+
 			return null;
 		}
 
@@ -362,37 +449,19 @@ public class page extends asi_activity {
 				Log.e("ASI", "Erreur d'arrêt de la boîte de dialogue");
 			}
 			if (error == null) {
-				page.this.load_page();
+				ActivityPage.this.load_page();
 			} else {
 				// new erreur_dialog(page.this, "Chargement de la page",
 				// error).show();
-				page.this.erreur_loading(error);
+				Log.e("asi", error);
+				ActivityPage.this.erreur_loading(error);
 			}
 		}
 	}
 
-	public void setPage_title(String page_title) {
-		if (page_title != null) {
-			this.page_title = page_title;
-			Log.d("ASI", this.page_title);
-		} else {
-			Log.d("ASI", "pas de titre");
-			this.page_title = "Sans titre";
-		}
-	}
-
-	public void setVideo(ArrayList<video_url> videos2) {
-		// TODO Auto-generated method stub
-		this.videos = videos2;
-	}
-
-	public String getPage_title() {
-		return page_title;
-	}
-
 	private class get_video_url extends AsyncTask<String, Void, String> {
-		private final progress_dialog dialog = new progress_dialog(page.this,
-				this);
+		private final DialogProgress dialog = new DialogProgress(
+				ActivityPage.this, this);
 		private String valid_url;
 
 		// can use UI thread here
@@ -409,7 +478,7 @@ public class page extends asi_activity {
 		// automatically done on worker thread (separate from UI thread)
 		protected String doInBackground(String... args) {
 			try {
-				video_url vid = new video_url(args[0]);
+				Video vid = new Video(args[0]);
 				vid.setTitle(page_title);
 				valid_url = vid.get_relink_adress();
 			} catch (Exception e) {
@@ -434,8 +503,8 @@ public class page extends asi_activity {
 				intent.setDataAndType(Uri.parse(valid_url), "video/*");
 				startActivity(intent);
 			} else {
-				new erreur_dialog(page.this, "Récupération de l'URL", error)
-						.show();
+				new DialogError(ActivityPage.this, "Récupération de l'URL",
+						error).show();
 			}
 		}
 	}

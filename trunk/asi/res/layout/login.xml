@@ -2,8 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent" android:background="@+color/color_white">
+	
 	<com.markupartist.android.widget.ActionBar android:id="@+id/actionbar"
     style="@style/ActionBar" />
+	
+	<ScrollView android:id="@+id/scroll" android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout android:id="@+id/container"
+        android:orientation="vertical" android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
 	<ImageView android:id="@+id/image" android:layout_width="fill_parent"
 		android:layout_gravity="center_horizontal" android:layout_height="wrap_content"
 		android:layout_margin="10dp" android:src="@+drawable/asi_logo" />
@@ -46,6 +53,7 @@
 	<Button android:id="@+id/abonnement_button" android:text="S'abonner à @rrêt sur images"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		android:layout_gravity="center_horizontal" android:textSize="14sp" />
-
+	</LinearLayout>
+	</ScrollView>
 </LinearLayout>
  

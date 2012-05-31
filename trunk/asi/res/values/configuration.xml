@@ -15,4 +15,9 @@
 		<item>Taille de la police</item>
 		<item>"Définir le niveau de zoom des articles"</item>
 	</string-array>
+	<string-array name="enable_zoom">
+		<item>enable_zoom</item>
+		<item>Activer le Zoom</item>
+		<item>"Ajouter les controles du zoom dans les articles"</item>
+	</string-array>
 </resources>

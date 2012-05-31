@@ -27,7 +27,7 @@ public class widget_receiver extends AppWidgetProvider {
 
 	private Vector<Article> articles;
 
-	private String url = "http://www.arretsurimages.net/tous-les-contenus.rss";
+	private String url = "http://www.arretsurimages.net/rss/tous-les-contenus.rss";
 
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
 			int[] appWidgetIds) {

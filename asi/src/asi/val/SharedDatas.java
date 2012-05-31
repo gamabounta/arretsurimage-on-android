@@ -299,4 +299,18 @@ public class SharedDatas {
 		}
 	}
 
+
+	public void setZoomEnable(boolean ena) {
+		SharedPreferences settings = activity.getSharedPreferences(PREFERENCE,
+				0);
+		Editor editor = settings.edit();
+		editor.putBoolean("zoom_enable", ena);
+		editor.commit();
+	}
+
+	public boolean isZoomEnable() {
+		SharedPreferences settings = activity.getSharedPreferences(PREFERENCE,
+				0);
+		return settings.getBoolean("zoom_enable", true);
+	}
 }

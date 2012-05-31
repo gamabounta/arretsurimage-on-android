@@ -209,6 +209,8 @@ public class ActivityPage extends ActivityAsiBase {
 			mywebview
 					.setInitialScale((int) (this.get_datas().getZoomLevel() * mywebview
 							.getScale()));
+			
+			mywebview.getSettings().setBuiltInZoomControls(this.get_datas().isZoomEnable());
 
 		} catch (Exception e) {
 			new DialogError(this, "Chargement de la page", e).show();

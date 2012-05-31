@@ -43,7 +43,7 @@ public class ActivityConfiguration extends ActivityAsiBase {
 		ArrayList<HashMap<String, String>> listItem = new ArrayList<HashMap<String, String>>();
 		HashMap<String, String> map;
 		// Chargement des catégories
-		int[] liste = new int[] { R.array.conf_autologin, R.array.conf_dlsync, R.array.conf_zoom};
+		int[] liste = new int[] { R.array.conf_autologin, R.array.conf_dlsync, R.array.enable_zoom, R.array.conf_zoom};
 
 		Resources res = getResources();
 		for (int i = 0; i < liste.length; i++) {
@@ -80,6 +80,8 @@ public class ActivityConfiguration extends ActivityAsiBase {
 					ActivityConfiguration.this.do_on_dlsync(map.get("titre"));
 				if (map.get("type").equalsIgnoreCase("zoom"))
 					ActivityConfiguration.this.do_on_zoom(map.get("titre"));
+				if (map.get("type").equalsIgnoreCase("enable_zoom"))
+					ActivityConfiguration.this.do_on_enable_zoom(map.get("titre"));
 			}
 		});
 	}
@@ -120,6 +122,28 @@ public class ActivityConfiguration extends ActivityAsiBase {
 					ActivityConfiguration.this.get_datas().setDlSync(true);
 				} else {
 					ActivityConfiguration.this.get_datas().setDlSync(false);
+				}
+				dialog.dismiss();
+			}
+		});
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+	
+	private void do_on_enable_zoom(String titre) {
+		final CharSequence[] items = { "Oui", "Non"};
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(titre);
+		int posi = 0;
+		if(!this.get_datas().isZoomEnable())
+			posi=1;
+		builder.setSingleChoiceItems(items, posi, new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialog, int item) {
+		       // Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
+				if (items[item].equals("Oui")) {
+					ActivityConfiguration.this.get_datas().setZoomEnable(true);
+				} else {
+					ActivityConfiguration.this.get_datas().setZoomEnable(false);
 				}
 				dialog.dismiss();
 			}

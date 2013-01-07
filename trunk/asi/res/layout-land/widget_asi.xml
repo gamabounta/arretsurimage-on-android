@@ -1,60 +1,171 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/widget" android:layout_width="wrap_content"
-	android:layout_height="wrap_content" android:orientation="horizontal"
-	android:gravity="center" android:background="@+drawable/wid_background_l">
-	<ImageView android:id="@+id/widget_asi" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:src="@+drawable/wid_asi" />
-	<ImageView android:id="@+id/widget_emi" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:src="@+drawable/wid_emi"
-		android:layout_toRightOf="@id/widget_asi" />
-	<ImageView android:id="@+id/widget_art" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:src="@+drawable/wid_art"
-		android:layout_toRightOf="@id/widget_emi" />
-	<ImageView android:id="@+id/widget_chro"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:src="@+drawable/wid_chro" android:layout_toRightOf="@id/widget_art" />
-	<ImageView android:id="@+id/widget_vite"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:src="@+drawable/wid_vite" android:layout_toRightOf="@id/widget_chro" />
-	<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		android:id="@+id/widget_next" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:layout_toRightOf="@+id/widget_vite">
-		<ImageView android:id="@+id/widget_asi2"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:src="@+drawable/wid_next" />
-		<TextView android:id="@+id/widget_next_texte"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:textSize="10sp" android:text="0/0" android:layout_margin="1dp"
-			android:layout_gravity="bottom|center_horizontal" android:textColor="@color/color_text" />
-	</FrameLayout>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="@dimen/widget_margin" >
 
-	<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		android:id="@+id/widget_mes" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:layout_alignRight="@id/widget_next"
-		android:layout_below="@id/widget_next" android:layout_alignLeft="@id/widget_asi">
-		<ImageView android:id="@+id/widget_asi2"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:src="@+drawable/wid_texte_l" />
-		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			android:id="@+id/widget_mess" android:layout_width="fill_parent"
-			android:layout_height="fill_parent" android:orientation="horizontal"
-			android:layout_marginLeft="2dp">
-			<TextView android:id="@+id/widget_color"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:textSize="20sp" android:textColor="@color/color_text"
-				android:text="|" android:layout_gravity="center_vertical"
-				android:textStyle="bold" android:layout_marginBottom="1dp" />
-			<TextView android:id="@+id/widget_message"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:textSize="12sp" android:textColor="@color/color_text"
-				android:text="Un exemple d'article" android:layout_marginLeft="1dp"
-				android:layout_gravity="center_vertical" />
-		</LinearLayout>
-		<ImageView android:id="@+id/widget_check"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:src="@+drawable/wid_check" android:layout_gravity="left|center_vertical"
-			android:layout_marginLeft="2dp" android:visibility="invisible"/>
-	</FrameLayout>
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/widget"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@+drawable/wid2_background"
+        android:baselineAligned="false"
+        android:orientation="horizontal" >
 
-</RelativeLayout>
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/widget2_asi"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" >
+
+            <ImageView
+                android:id="@+id/widget2_asi_bar"
+                android:layout_width="fill_parent"
+                android:layout_height="3dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="1dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginTop="3dp"
+                android:src="@+drawable/color_asi" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_below="@+id/widget2_asi_bar"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="2dp"
+                android:src="@+drawable/toutlesite" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="fill_parent"
+                android:layout_alignParentRight="true"
+                android:background="@color/color_line_widget" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/widget2_emi"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" >
+
+            <ImageView
+                android:id="@+id/widget2_emi_bar"
+                android:layout_width="fill_parent"
+                android:layout_height="3dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="1dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginTop="3dp"
+                android:src="@+drawable/color_emi" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_below="@+id/widget2_emi_bar"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="2dp"
+                android:src="@+drawable/pola_asi" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="fill_parent"
+                android:layout_alignParentRight="true"
+                android:background="@color/color_line_widget" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/widget2_art"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" >
+
+            <ImageView
+                android:id="@+id/widget2_art_bar"
+                android:layout_width="fill_parent"
+                android:layout_height="3dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="1dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginTop="3dp"
+                android:src="@+drawable/color_art" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_below="@+id/widget2_art_bar"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="2dp"
+                android:src="@+drawable/articles" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="fill_parent"
+                android:layout_alignParentRight="true"
+                android:background="@color/color_line_widget" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/widget2_chro"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" >
+
+            <ImageView
+                android:id="@+id/widget2_chro_bar"
+                android:layout_width="fill_parent"
+                android:layout_height="3dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="1dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginTop="3dp"
+                android:src="@+drawable/color_chro" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_below="@+id/widget2_chro_bar"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="2dp"
+                android:src="@+drawable/kro" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="fill_parent"
+                android:layout_alignParentRight="true"
+                android:background="@color/color_line_widget" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/widget2_vite"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" >
+
+            <ImageView
+                android:id="@+id/widget2_vite_bar"
+                android:layout_width="fill_parent"
+                android:layout_height="3dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="1dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginTop="3dp"
+                android:src="@+drawable/color_vite" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_below="@+id/widget2_vite_bar"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="2dp"
+                android:src="@+drawable/vite" />
+        </RelativeLayout>
+    </LinearLayout>
+
+</FrameLayout>

@@ -232,8 +232,12 @@ public class ActivityListArticle extends ActivityAsiBase {
 	}
 
 	protected void choice_action_item(final String url, final String titre) {
+		final boolean is_vue = this.get_datas().contain_articles_lues(url);
+		String texte = "Marquer comme lu";
+		if (is_vue)
+			texte = "Marquer comme non lu";
 		final CharSequence[] items = { "Visualiser", "Partager",
-				"Marquer comme lu" };
+				texte };
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(titre);
 		builder.setItems(items, new DialogInterface.OnClickListener() {
@@ -243,7 +247,7 @@ public class ActivityListArticle extends ActivityAsiBase {
 				} else if (items[item].equals("Partager")) {
 					ActivityListArticle.this.partage(url, titre);
 				} else {
-					ActivityListArticle.this.marquer_comme_lu(url);
+					ActivityListArticle.this.marquerLecture(url,!is_vue);
 				}
 				// download_view.this.load_data();
 			}
@@ -272,9 +276,13 @@ public class ActivityListArticle extends ActivityAsiBase {
 		}
 	}
 
-	private void marquer_comme_lu(String url) {
+	private void marquerLecture(String url, boolean sens) {
+		// true, marquer comme lue, false, marquer comme non lu
 		try {
-			this.get_datas().add_articles_lues(url);
+			if(sens)
+				this.get_datas().add_articles_lues(url);
+			else
+				this.get_datas().remove_articles_lues(url);
 			state = maListViewPerso.onSaveInstanceState();
 			this.load_data();
 			maListViewPerso.onRestoreInstanceState(state);
@@ -282,6 +290,36 @@ public class ActivityListArticle extends ActivityAsiBase {
 			new DialogError(this, "Chargement de la page", e).show();
 		}
 		// new page(main.this);
+	}
+	
+	private void choixMultipleLecture() {
+		// Demande si tout marquer  ou demarquer ou annuler
+		final CharSequence[] items = { "Comme lu", "Comme non Lu",
+				"Annuler" };
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Marquer tout les articles");
+		builder.setItems(items, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int item) {
+				if (items[item].equals("Comme lu")) {
+					ActivityListArticle.this.marquerMultipleLecture(true);
+				} else if (items[item].equals("Comme non Lu")) {
+					ActivityListArticle.this.marquerMultipleLecture(false);
+				} 
+			}
+		});
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+	
+	private void marquerMultipleLecture(boolean sens) {
+		for(int i =0;i<articles.size();i++){
+			if(sens)
+				this.get_datas().add_articles_lues(articles.elementAt(i).getUri());
+			else
+				this.get_datas().remove_articles_lues(articles.elementAt(i).getUri());
+		}
+		if(articles.size()>0)
+			this.marquerLecture(articles.elementAt(0).getUri(),sens);
 	}
 
 	protected void load_page(String url, String titre) {
@@ -310,10 +348,11 @@ public class ActivityListArticle extends ActivityAsiBase {
 		// Handle item selection
 		switch (item.getItemId()) {
 		case R.id.check_item:
-			for(int i =0;i<articles.size();i++)
-				this.get_datas().add_articles_lues(articles.elementAt(i).getUri());
-			if(articles.size()>0)
-				this.marquer_comme_lu(articles.elementAt(0).getUri());
+			this.choixMultipleLecture();
+			//for(int i =0;i<articles.size();i++)
+			//	this.get_datas().add_articles_lues(articles.elementAt(i).getUri());
+			//if(articles.size()>0)
+			//	this.marquerLecture(articles.elementAt(0).getUri());
 			return true;
 		case R.id.update_item:
 			this.load_content();

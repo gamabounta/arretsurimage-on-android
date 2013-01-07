@@ -31,14 +31,24 @@ public class ActivityAsiBase extends Activity {
 
 	protected SharedDatas datas;
 	
+	protected boolean hasFocus = false;
+	
+	
 	public void onResume() {
 		super.onResume();
+		hasFocus=true;
 		ActionBar actionBar = (ActionBar) this.findViewById(R.id.actionbar);
 		if (actionBar != null && actionBar.getNavigationMode()==ActionBar.NAVIGATION_MODE_LIST) {
 			Log.d("ASI", "Navigation mode onResume");
 			actionBar.setSelectedNavigationItem(0);
 		}
 	}
+	
+	public void onPause() {
+		super.onPause();
+		hasFocus=false;
+	}
+	
 
 	public SharedDatas get_datas() {
 		datas = SharedDatas.shared;
@@ -54,6 +64,11 @@ public class ActivityAsiBase extends Activity {
 
 	protected void erreur_loading(String error) {
 		Log.e("ASI", error);
+		if(hasFocus==false){
+			Log.d("ASI","Windows that have not focus, do nothing");
+			this.finish();
+			return;
+		}
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(
 				"Une erreur réseau s'est produite lors du chargement.")
@@ -74,33 +89,9 @@ public class ActivityAsiBase extends Activity {
 		quitte.show();
 	}
 
-	public void closed_application() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("Quitter ?");
-		builder.setMessage("Tous les téléchargements en cours seront arrêtés")
-				.setCancelable(false)
-				.setPositiveButton("Oui",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								ActivityAsiBase.this.get_datas()
-										.stop_all_download();
-								ActivityAsiBase.this.finish();
-							}
-						})
-				.setNegativeButton("Non",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								dialog.cancel();
-							}
-						});
-		AlertDialog quitte = builder.create();
-		quitte.show();
-	}
-
 	public void addNavigationToActionBar(ActionBar actionBar, String title) {
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-		String[] option = new String[] { title, "Téléchargements",
-				"Vidéos téléchargées" };
+		String[] option = new String[] { title, "Vidéos téléchargées" , "Paramètres"};
 		SpinnerAdapter adapter = new ArrayAdapter<String>(this,
 				R.layout.actionbar_list_dropdown_item, option);
 		actionBar.setListNavigationCallbacks(adapter,
@@ -108,10 +99,10 @@ public class ActivityAsiBase extends Activity {
 					public boolean onNavigationItemSelected(int itemPosition,
 							long itemId) {
 						if (itemPosition == 1) {
-							Intent i = new Intent(ActivityAsiBase.this, ActivityDownloadCurrent.class);
+							Intent i = new Intent(ActivityAsiBase.this, ActivityVideoOnSd.class);
 							ActivityAsiBase.this.startActivity(i);
 						} else if (itemPosition == 2){
-							Intent i = new Intent(ActivityAsiBase.this, ActivityVideoOnSd.class);
+							Intent i = new Intent(ActivityAsiBase.this, ActivityConfiguration.class);
 							ActivityAsiBase.this.startActivity(i);
 						}
 						return true;
@@ -130,10 +121,6 @@ public class ActivityAsiBase extends Activity {
 			return true;
 		case R.id.itemback:
 			this.finish();
-			return true;
-		case R.id.telechargement_item:
-			i = new Intent(this, ActivityDownloadCurrent.class);
-			this.startActivity(i);
 			return true;
 		case R.id.video_item:
 			i = new Intent(this, ActivityVideoOnSd.class);
@@ -157,7 +144,6 @@ public class ActivityAsiBase extends Activity {
 			builder.show();
 			return true;
 		case R.id.close_item:
-			this.closed_application();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

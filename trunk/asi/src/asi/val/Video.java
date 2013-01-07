@@ -168,7 +168,10 @@ public class Video {
 		return dailymotion;
 	}
 	
-
+	public String getLinkURL() {
+		return dailymotion+"&vidnum="+number;
+	}
+	
 	public void setTitle(String page_title) {
 		this.title = page_title;
 	}
@@ -187,5 +190,11 @@ public class Video {
 	public String getTitle_and_number(){
 		return(title+" - "+number);
 	}
-	
+	public String getShortTitle_and_number(){
+		String s =title+" - "+number;
+		if(title.length()>25){
+			s = title.substring(0, 10)+" ... "+title.substring(title.length()-10)+" - "+number;
+		}
+		return(s);
+	}
 }

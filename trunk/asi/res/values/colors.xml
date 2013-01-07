@@ -14,5 +14,11 @@
     <color name="actionbar_background_dropdown_start">#ffffff</color>
     <color name="actionbar_background_dropdown_end">#f2f2f2</color>
     <color name="actionbar_title">#47637f</color>
-    
+    <color name="color_line_widget">#7f464646</color>
+    <color name="colorbackground_widget">#d5ffffff</color>   
+    <color name="color_asi">#ACB7C6</color>
+    <color name="color_emi">#3A36FF</color>  
+    <color name="color_art">#3399FF</color>
+    <color name="color_chro">#FF398E</color>
+    <color name="color_vite">#FEC763</color>
 </resources>

@@ -17,8 +17,8 @@ package asi.val;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Vector;
 
 import com.markupartist.android.widget.ActionBar;
 
@@ -37,10 +37,10 @@ import android.widget.SimpleAdapter;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class ActivityVideoOnSd extends ActivityReloadBase {
+public class ActivityVideoOnSd extends ActivityAsiBase {
 	private ListView maListViewPerso;
 
-	private Vector<File> video_sd;
+	private ArrayList<File> video_sd;
 
 	private final File path = new File(
 			Environment.getExternalStorageDirectory() + "/ASI");
@@ -53,16 +53,17 @@ public class ActivityVideoOnSd extends ActivityReloadBase {
 		maListViewPerso = (ListView) findViewById(R.id.listviewperso);
 
 		ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
-		getMenuInflater().inflate(R.menu.video_menu_top, actionBar.asMenu());
+		getMenuInflater().inflate(R.menu.back_menu_top, actionBar.asMenu());
 		actionBar.setTitle("Vidéos téléchargées");
 		actionBar.setDisplayShowHomeEnabled(true);
-		
-		video_sd = new Vector<File>();
+		actionBar.addAction(actionBar.newAction(R.id.actionbar_item_home)
+				.setIcon(R.drawable.telechargement));
+		video_sd = new ArrayList<File>();
 
-		//this.load_data();
+		this.load_content();
 	}
 
-	protected void load_data() {
+	public void load_content() {
 		// try {
 		// Thread.sleep(100);
 		// } catch (Exception e) {
@@ -88,18 +89,21 @@ public class ActivityVideoOnSd extends ActivityReloadBase {
 		} catch (StopException e) {
 			new DialogError(this, "Lecture de la carte SD", e.toString())
 					.show();
-			this.update.stop_update();
+			//this.update.stop_update();
 		} catch (Exception e) {
 			new DialogError(this, "Lecture de la carte SD", e).show();
-			this.update.stop_update();
+			//this.update.stop_update();
 		}
+		//On ordonne la liste
+		Collections.sort(video_sd);
+		
 
 		// Création de la ArrayList qui nous permettra de remplir la listView
 		ArrayList<HashMap<String, String>> listItem = new ArrayList<HashMap<String, String>>();
 		HashMap<String, String> map;
 		File dvid;
 		for (int i = 0; i < video_sd.size(); i++) {
-			dvid = video_sd.elementAt(i);
+			dvid = video_sd.get(i);
 			map = new HashMap<String, String>();
 			map.put("titre", dvid.getName().replaceAll("_", " "));
 			int leng = (int) (dvid.length() / 1000);
@@ -165,8 +169,8 @@ public class ActivityVideoOnSd extends ActivityReloadBase {
 						vid.delete();
 					Toast.makeText(ActivityVideoOnSd.this, "Fichier supprimé",
 							Toast.LENGTH_SHORT).show();
+					ActivityVideoOnSd.this.load_content();
 				}
-				// SD_video_view.this.load_data();
 			}
 		});
 		AlertDialog alert = builder.create();
@@ -176,7 +180,7 @@ public class ActivityVideoOnSd extends ActivityReloadBase {
 	private void traitement_video(String num) {
 		try {
 			Log.d("ASI", "Num=" + num);
-			File vid = video_sd.elementAt(Integer.parseInt(num));
+			File vid = video_sd.get(Integer.parseInt(num));
 			this.do_on_video(vid);
 
 		} catch (Exception e) {

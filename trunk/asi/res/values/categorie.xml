@@ -62,13 +62,16 @@
 	<string-array name="subcatE">
 		<item>"Toutes les émissions"</item>
 		<item>http://www.arretsurimages.net/rss/emissions.rss</item>
-		<item></item>
+		<item>kro_nous</item>
 		<item>"@rrêt sur images"</item>
 		<item>http://www.arretsurimages.net/rss/emissions-asi.rss</item>
 		<item>pola_asi</item>
 		<item>"D@ns le texte;"</item>
 		<item>http://www.arretsurimages.net/rss/emissions-dlt.rss</item>
 		<item>pola_dt</item>
+		<item>"@u prochain épisode"</item>
+		<item>http://www.arretsurimages.net/rss/emissions-ape.rss</item>
+		<item>kro_rafik</item>
 		<item>"@ux sources"</item>
 		<item>http://www.arretsurimages.net/rss/emissions-src.rss</item>
 		<item>pola_auxsources</item>
@@ -77,45 +80,53 @@
 		<item>"Toutes les chroniques"</item>
 		<item>http://www.arretsurimages.net/rss/chroniques.rss</item>
 		<item>kro</item>
-		<item>Chez Daniel</item>
-		<item>http://www.arretsurimages.net/rss/chroniqueur.2.rss</item>
-		<item>kro_daniel</item>
-		<item>Chez Judith</item>
-		<item>http://www.arretsurimages.net/rss/chroniqueur.5.rss</item>
-		<item>kro_judith</item>
-		<item>Chez Alain</item>
-		<item>http://www.arretsurimages.net/rss/chroniqueur.8.rss</item>
-		<item>kro_alain</item>
+		<item>Chez Nous</item>
+		<item>http://www.arretsurimages.net/rss/chroniqueur.1.rss</item>
+		<item>kro_nous</item>
 		<item>Chez les matinautes</item>
 		<item>http://www.arretsurimages.net/rss/chroniqueur.12.rss</item>
 		<item>kro_neuf_quinze</item>
-		<item>Chez Anne-Sophie</item>
-		<item>http://www.arretsurimages.net/rss/chroniqueur.14.rss</item>
-		<item>kro_anso</item>
-		<item>"Chez Sherlock Com'"</item>
-		<item>http://www.arretsurimages.net/rss/chroniqueur.17.rss</item>
-		<item>kro_sherlock</item>
-		<item>Chez Rafik</item>
-		<item>http://www.arretsurimages.net/rss/chroniqueur.20.rss</item>
-		<item>kro_rafik</item>
+		<item>Chez les éconautes</item>
+		<item>http://www.arretsurimages.net/rss/chroniqueur.25.rss</item>
+		<item>pola_econaute</item>
+		<item>Chez Daniel</item>
+		<item>http://www.arretsurimages.net/rss/chroniqueur.2.rss</item>
+		<item>kro_daniel</item>
+		<item>Chez Alain</item>
+		<item>http://www.arretsurimages.net/rss/chroniqueur.8.rss</item>
+		<item>kro_alain</item>
 		<item>Chez Didier</item>
 		<item>http://www.arretsurimages.net/rss/chroniqueur.21.rss</item>
 		<item>kro_didier</item>
+		<item>Chez Judith</item>
+		<item>http://www.arretsurimages.net/rss/chroniqueur.5.rss</item>
+		<item>kro_judith</item>
+		<item>Chez Sébastien</item>
+		<item>http://www.arretsurimages.net/rss/chroniqueur.3.rss</item>
+		<item>kro_sebastien</item>
+		<item>Chez Normaland</item>
+		<item>http://www.arretsurimages.net/rss/chroniqueur.28.rss</item>
+		<item>pola_norma</item>
+		<item>Ancienne chronique</item>
+		<item>subcatCold</item>
+		<item>kro</item>
+	</string-array>
+	<string-array name="subcatCold">
+		<item>Chez Anne-Sophie</item>
+		<item>http://www.arretsurimages.net/rss/chroniqueur.14.rss</item>
+		<item>kro_anso</item>
+		<item>Chez Rafik</item>
+		<item>http://www.arretsurimages.net/rss/chroniqueur.20.rss</item>
+		<item>kro_rafik</item>
 		<item>Chez les sarkosis</item>
 		<item>http://www.arretsurimages.net/rss/chroniqueur.23.rss</item>
 		<item>kro_sarkozi</item>
 		<item>Chez la Parisienne</item>
 		<item>http://www.arretsurimages.net/rss/chroniqueur.24.rss</item>
 		<item>pola_parisienne</item>
-		<item>Chez les éconautes</item>
-		<item>http://www.arretsurimages.net/rss/chroniqueur.25.rss</item>
-		<item>pola_econaute</item>
-		<item>Chez Normaland</item>
-		<item>http://www.arretsurimages.net/rss/chroniqueur.28.rss</item>
-		<item>pola_norma</item>
-		<item>Chez Nous</item>
-		<item>http://www.arretsurimages.net/rss/chroniqueur.1.rss</item>
-		<item>kro_nous</item>
+		<item>"Chez Sherlock Com'"</item>
+		<item>http://www.arretsurimages.net/rss/chroniqueur.17.rss</item>
+		<item>kro_sherlock</item>
 	</string-array>
 </resources>
 

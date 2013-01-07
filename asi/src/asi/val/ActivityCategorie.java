@@ -43,20 +43,21 @@ public class ActivityCategorie extends ActivityAsiBase {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		
-		//récupération de l'actionBar
+
+		// récupération de l'actionBar
 		ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
-		getMenuInflater().inflate(R.menu.categorie_menu_top, actionBar.asMenu());
-		this.addNavigationToActionBar(actionBar, "Choix des catégories");
-		//actionBar.setTitle("Choix des catégories");
+		getMenuInflater()
+				.inflate(R.menu.categorie_menu_top, actionBar.asMenu());
+		//this.addNavigationToActionBar(actionBar, "Choix des catégories");
+		// actionBar.setTitle("Choix des catégories");
 
 		actionBar.setDisplayShowHomeEnabled(true);
-		
+
 		// Récupération de la listview créée dans le fichier main.xml
 		maListViewPerso = (ListView) findViewById(R.id.listviewperso);
 
 		gratuit = this.getIntent().getExtras().getBoolean("gratuit");
-		
+
 		this.load_data();
 
 	}
@@ -70,10 +71,10 @@ public class ActivityCategorie extends ActivityAsiBase {
 		int[] liste = null;
 		if (!gratuit) {
 			liste = new int[] { R.array.catT, R.array.catE, R.array.catD,
-					R.array.catC, R.array.catV, R.array.catR};
+					R.array.catC, R.array.catV, R.array.catR };
 		} else {
 			liste = new int[] { R.array.catT, R.array.catE, R.array.catD,
-					R.array.catC, R.array.catG, R.array.catR};
+					R.array.catC, R.array.catG, R.array.catR };
 		}
 
 		Resources res = getResources();
@@ -91,9 +92,9 @@ public class ActivityCategorie extends ActivityAsiBase {
 		// Création d'un SimpleAdapter qui se chargera de mettre les items
 		// présents dans notre list (listItem) dans la vue affichageitem
 		SimpleAdapter mSchedule = new SimpleAdapter(this.getBaseContext(),
-				listItem, R.layout.categorie_listes, new String[] { "color","titre" },
-				new int[] { R.id.cat_color, R.id.cat_title });
-		//on ajoute le viewbinder 
+				listItem, R.layout.categorie_listes, new String[] { "color",
+						"titre" }, new int[] { R.id.cat_color, R.id.cat_title });
+		// on ajoute le viewbinder
 		mSchedule.setViewBinder(new BindColor());
 
 		// On attribue à notre listView l'adapter que l'on vient de créer
@@ -108,23 +109,23 @@ public class ActivityCategorie extends ActivityAsiBase {
 				// (titre, description, img)
 				HashMap<String, String> map = (HashMap<String, String>) maListViewPerso
 						.getItemAtPosition(position);
-				if(map.get("url").equalsIgnoreCase("recherche"))
+				if (map.get("url").equalsIgnoreCase("recherche"))
 					ActivityCategorie.this.do_recherche(map.get("titre"),
-							map.get("color"),map.get("image"));
+							map.get("color"), map.get("image"));
 				else if (map.get("subcat").equalsIgnoreCase("no"))
-					ActivityCategorie.this.load_page(map.get("url"), map.get("titre"),
-							map.get("color"),map.get("image"));
+					ActivityCategorie.this.load_page(map.get("url"),
+							map.get("titre"), map.get("color"),
+							map.get("image"));
 				else
-					ActivityCategorie.this.do_on_long_clic(map.get("subcat"), map
-							.get("titre"),map.get("color"));
+					ActivityCategorie.this.do_on_long_clic(map.get("subcat"),
+							map.get("titre"), map.get("color"));
 			}
 		});
 	}
 
 	protected void do_recherche(String titre, String color, String image) {
-		new DialogRecherche(this, titre,color,image)
-		.show();
-		
+		new DialogRecherche(this, titre, color, image).show();
+
 	}
 
 	private void load_page(String url, String titre, String color, String image) {
@@ -149,63 +150,67 @@ public class ActivityCategorie extends ActivityAsiBase {
 		Log.d("ASI", this.getPackageName());
 		int id = res.getIdentifier(subid, "array", this.getPackageName());
 		final String color_fin = color;
-		
+
 		ArrayList<HashMap<String, String>> subcatitem = new ArrayList<HashMap<String, String>>();
 		HashMap<String, String> map;
-		
+
 		final String[] subcategorie = res.getStringArray(id);
 		for (int i = 0; i < subcategorie.length; i += 3) {
 			map = new HashMap<String, String>();
 			map.put("titre", subcategorie[i]);
-			map.put("logo", "png-"+res.getIdentifier(subcategorie[i+2], "drawable", this.getPackageName()));	
-			//map.put("logo", subcategorie[i+2]);
-			map.put("url", subcategorie[i+1]);				
+			map.put("logo",
+					"png-"
+							+ res.getIdentifier(subcategorie[i + 2],
+									"drawable", this.getPackageName()));
+			// map.put("logo", subcategorie[i+2]);
+			map.put("url", subcategorie[i + 1]);
 			subcatitem.add(map);
-		}		
+		}
 
 		SimpleAdapter mSchedule2 = new SimpleAdapter(this.getBaseContext(),
-				subcatitem, R.layout.subcategorie, new String[] { "logo","titre" },
-				new int[] { R.id.subcat_image,R.id.subcat_title });
+				subcatitem, R.layout.subcategorie, new String[] { "logo",
+						"titre" }, new int[] { R.id.subcat_image,
+						R.id.subcat_title });
 		mSchedule2.setViewBinder(new BindImage());
-//		final CharSequence[] subcate = new CharSequence[subcategorie.length / 3];
-//		for (int i = 0; i < subcategorie.length; i += 3) {
-//			subcate[(i / 3)] = subcategorie[i];
-//		}
+		// final CharSequence[] subcate = new CharSequence[subcategorie.length /
+		// 3];
+		// for (int i = 0; i < subcategorie.length; i += 3) {
+		// subcate[(i / 3)] = subcategorie[i];
+		// }
 		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(titre.replace(">", ""));
-		
+
 		builder.setAdapter(mSchedule2, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int item) {
-				ActivityCategorie.this.load_page(subcategorie[item * 3 + 1],
-						subcategorie[item * 3], color_fin,subcategorie[item * 3 + 2]);
+				if(	subcategorie[item * 3 + 1].contains("rss")){
+					ActivityCategorie.this.load_page(subcategorie[item * 3 + 1],
+							subcategorie[item * 3], color_fin,
+							subcategorie[item * 3 + 2]);
+				}else{
+					ActivityCategorie.this.do_on_long_clic(subcategorie[item * 3 + 1], subcategorie[item * 3], color_fin);
+				}
 			}
-			});
+		});
 
-//		builder.setItems(subcate, new DialogInterface.OnClickListener() {
-//			public void onClick(DialogInterface dialog, int item) {
-//				main_view.this.load_page(subcategorie[item * 3 + 1],
-//						subcategorie[item * 3], color_fin);
-//			}
-//		});
 		AlertDialog alert = builder.create();
 		alert.show();
 	}
-	
+
 	// public void onBackPressed(){
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-			if(this.get_datas().isAutologin()){
-				//this.closed_application();
+			if (this.get_datas().isAutologin()) {
+				// this.closed_application();
 				this.finish();
 				return true;
 			}
-			//main.group.is_autologin(false);
-			//return true;
+			// main.group.is_autologin(false);
+			// return true;
 		}
 
 		return super.onKeyDown(keyCode, event);
 	}
-	
+
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.layout.full_menu, menu);

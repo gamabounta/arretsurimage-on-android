@@ -353,7 +353,11 @@ public class ActivityPage extends ActivityAsiBase {
 					video_selected = videos.get(i);
 					video_selected.setNumber(i + 1);
 					video_selected.setTitle(page_title);
-					ActivityPage.this.get_datas().downloadvideo(video_selected);
+					Intent intent = new Intent(getApplicationContext(), ServiceDownload.class);
+					intent.putExtra("titre", ActivityPage.this.page_title);
+					intent.putExtra("dlsync", ActivityPage.this.get_datas().isDlSync());
+					intent.putExtra("url", video_selected.getLinkURL());
+					ActivityPage.this.startService(intent);
 					// }
 				}
 			}
@@ -371,9 +375,15 @@ public class ActivityPage extends ActivityAsiBase {
 				if (items[item].equals("Visionner")) {
 					new get_video_url().execute(url);
 				} else {
-					Video vid = new Video(url);
-					vid.setTitle(page_title);
-					ActivityPage.this.get_datas().downloadvideo(vid);
+					Log.d("ASI", "DownloadVideo");
+					Intent i = new Intent(getApplicationContext(), ServiceDownload.class);
+					i.putExtra("titre", ActivityPage.this.page_title);
+					i.putExtra("dlsync", ActivityPage.this.get_datas().isDlSync());
+					i.putExtra("url", url);
+					ActivityPage.this.startService(i);
+					//Video vid = new Video(url);
+					//vid.setTitle(page_title);
+					//ActivityPage.this.get_datas().downloadvideo(vid);
 				}
 			}
 		});
@@ -453,8 +463,6 @@ public class ActivityPage extends ActivityAsiBase {
 			if (error == null) {
 				ActivityPage.this.load_page();
 			} else {
-				// new erreur_dialog(page.this, "Chargement de la page",
-				// error).show();
 				Log.e("asi", error);
 				ActivityPage.this.erreur_loading(error);
 			}

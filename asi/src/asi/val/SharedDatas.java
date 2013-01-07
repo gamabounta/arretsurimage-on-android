@@ -9,7 +9,6 @@ import java.util.Vector;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.AsyncTask.Status;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -22,10 +21,10 @@ public class SharedDatas {
 	private static final String FILENAME = "article_lus";
 
 	private static final String FILENAME_WIDGET = "widget_articles";
-
+	
+	private static final String FILENAME_WIDGET_EMISSION = "widget_emission";
+	
 	public static final String PREFERENCE = "asi_pref";
-
-	private Vector<DownloadVideo> downloading;
 
 	private Vector<String> articles_lues;
 
@@ -37,7 +36,6 @@ public class SharedDatas {
 
 	public SharedDatas(Context a) {
 		Log.d("ASI", "create shared");
-		this.downloading = new Vector<DownloadVideo>();
 		this.articles_lues = new Vector<String>();
 		SharedDatas.shared = this;
 		activity = a;
@@ -68,40 +66,6 @@ public class SharedDatas {
 		return Cookies;
 	}
 
-	public void downloadvideo(Video url) {
-		DownloadVideo d = new DownloadVideo(this, url);
-		if(!dlsync){
-			boolean has_running = false;
-			for(DownloadVideo dv : downloading){
-				if(dv.getStatus() == Status.RUNNING){
-					has_running = true;
-					break;
-				}
-			}
-			if(!has_running)
-				d.execute("");
-			
-		} else{
-			d.execute("");
-		}
-		this.downloading.add(d);
-	}
-
-	public void download_next_video() {
-		//lorsque le téléchargement est en série, on lance la vidéo en attente suivante
-		if(!dlsync){
-			for(DownloadVideo dv : downloading){
-				if(dv.getStatus() == Status.PENDING){
-					dv.execute("");
-					break;
-				}
-			}
-		}
-	}
-	
-	public Vector<DownloadVideo> get_download_video() {
-		return (this.downloading);
-	}
 
 	private void set_articles_lues() {
 		try {
@@ -164,7 +128,26 @@ public class SharedDatas {
 					.show();
 			Log.e("ASI", "ACCÈS aux données partagées " + e.getMessage());
 		}
-		// Log.d("ASI","add_url_lu="+url_article);
+	}
+	
+	public void remove_articles_lues(String url_article) {
+		try {
+			if (this.articles_lues.contains(url_article)) {
+				this.articles_lues.remove(url_article);
+				FileOutputStream fos = activity.openFileOutput(FILENAME,
+						Context.MODE_PRIVATE);
+				for (String url : this.articles_lues) {
+					url = url + "\n";
+					fos.write(url.getBytes());
+				}
+				fos.flush();
+				fos.close();
+			}
+		} catch (Exception e) {
+			new DialogError(this.activity, "ACCÈS aux données partagées", e)
+					.show();
+			Log.e("ASI", "ACCÈS aux données partagées " + e.getMessage());
+		}
 	}
 
 	public boolean contain_articles_lues(String url_article) {
@@ -215,15 +198,6 @@ public class SharedDatas {
 		SharedPreferences settings = activity.getSharedPreferences(PREFERENCE,
 				0);
 		return settings.getInt("zoom_level", 100);
-	}
-	
-	protected void stop_all_download() {
-		for (int i = 0; i < downloading.size(); i++) {
-			DownloadVideo vid = downloading.elementAt(i);
-			String status = vid.getStatus().toString();
-			if (!status.equals("FINISHED"))
-				vid.Stop_download();
-		}
 	}
 
 	public void save_widget_posi(int posi) {
@@ -299,6 +273,64 @@ public class SharedDatas {
 		}
 	}
 
+	public void save_widget_emission(Vector<Article> arts) {
+		try {
+			FileOutputStream fos = activity.openFileOutput(FILENAME_WIDGET_EMISSION,
+					Context.MODE_PRIVATE);
+			String temp = "";
+			for (int i = 0; i < arts.size(); i++) {
+				temp = arts.elementAt(i).getTitle() + "\n"
+						+ arts.elementAt(i).getUri() + "\n"
+						+ arts.elementAt(i).getColor() + "\n";
+				fos.write(temp.getBytes());
+			}
+			fos.flush();
+			fos.close();
+		} catch (java.io.FileNotFoundException e) {
+			Log.d("ASI", "sauver données partagées" + e.getMessage());
+		} catch (Exception e) {
+			new DialogError(this.activity, "ACCÈS aux données partagées", e)
+					.show();
+			Log.e("ASI", "ACCES aux données partagées " + e.getMessage());
+		}
+	}
+
+	@SuppressWarnings("finally")
+	public Vector<Article> get_widget_emission() {
+		Vector<Article> temp = new Vector<Article>();
+		try {
+			FileInputStream fos = activity.openFileInput(FILENAME_WIDGET_EMISSION);
+			InputStreamReader isr = new InputStreamReader(fos);
+			BufferedReader objBufferReader = new BufferedReader(isr);
+			String strLine;
+			int value = 0;
+			Article ar = new Article();
+			while ((strLine = objBufferReader.readLine()) != null) {
+				value++;
+				if (value == 1) {
+					ar.setTitle(strLine);
+				} else if (value == 2) {
+					ar.setUri(strLine);
+				} else {
+					ar.setColor(strLine);
+					temp.add(ar);
+					ar = new Article();
+					value = 0;
+				}
+			}
+			;
+			fos.close();
+			this.test_length_article_lu();
+		} catch (java.io.FileNotFoundException e) {
+			Log.d("ASI", "sauver données partagées" + e.getMessage());
+		} catch (Exception e) {
+			new DialogError(this.activity, "ACCÈS aux données partagées", e)
+					.show();
+			Log.e("ASI", "ACCÈS aux données partagées " + e.getMessage());
+		} finally {
+			return (temp);
+		}
+	}
 
 	public void setZoomEnable(boolean ena) {
 		SharedPreferences settings = activity.getSharedPreferences(PREFERENCE,

@@ -4,8 +4,6 @@
 		android:title="Vidéos de l'article"  />
 	<item android:id="@+id/param_item" android:icon="@+drawable/param_menu"
 		android:title="Paramètres" />
-	<item android:id="@+id/telechargement_item" android:icon="@+drawable/telechargement_menu"
-		android:title="Téléchargements" />
 	<item android:id="@+id/video_item" android:icon="@+drawable/video_menu"
 		android:title="Vidéos téléchargées" />
 </menu>

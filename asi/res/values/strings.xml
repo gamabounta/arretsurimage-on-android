@@ -2,7 +2,10 @@
 <resources>
 	<string name="hello">Hello World, main!</string>
 	<string name="app_name">arretsurimages.net</string>
-	<string name="widget_name">arretsurimages.net</string>
+	<string name="widget_name">ASI (raccourci)</string>
+	<string name="widget_name_news">ASI (news)</string>
+	<string name="widget_name_emi">ASI (émissions)</string>
+	<string name="stop">Stop</string>
 	<string name="apropos">"Bienvenue sur l’application officielle d’@rrêt sur images
 
 L’appli permet de visionner les derniers contenus produits par le site : émissions, chroniques, articles de la rédaction et vite-dits.

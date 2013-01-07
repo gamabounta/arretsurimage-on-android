@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="@dimen/widget_margin" >
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@+drawable/wid2_background"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@color/color_white" >
+
+            <ImageView
+                android:id="@+id/widget_image"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_marginBottom="2dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginTop="2dp"
+                android:src="@+drawable/pola_asi" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_margin="2dp"
+                android:layout_toRightOf="@+id/widget_image"
+                android:text="Émissions"
+                android:textColor="@color/color_text"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/widget_update"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_alignParentRight="true"
+                android:layout_margin="2dp"
+                android:src="@+drawable/update_menu_top" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="fill_parent"
+                android:layout_marginBottom="2dp"
+                android:layout_toLeftOf="@+id/widget_update"
+                android:background="@color/color_line_widget" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="1dp"
+                android:background="@color/color_line_widget" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_alignParentBottom="true"
+                android:background="@color/color_text" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" >
+
+            <ImageView
+                android:id="@+id/widget_color1"
+                android:layout_width="3dp"
+                android:layout_height="fill_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_marginBottom="2dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginTop="2dp"
+                android:src="@+drawable/color_emi" />
+
+            <ImageView
+                android:id="@+id/widget_download1"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_alignParentRight="true"
+                android:layout_margin="2dp"
+                android:src="@+drawable/telechargement_video_menu_top" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="fill_parent"
+                android:layout_toLeftOf="@+id/widget_download1"
+                android:background="@color/color_line_widget" />
+
+            <FrameLayout
+                android:id="@+id/widget_emi1"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_toLeftOf="@+id/widget_download1"
+                android:layout_toRightOf="@+id/widget_color1"
+                android:padding="2dp" >
+
+                <TextView
+                    android:id="@+id/widget_message1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="Une example d&apos;article"
+                    android:textColor="@color/color_text"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/widget_check_image1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="2dp"
+                    android:src="@+drawable/wid_check"
+                    android:visibility="invisible" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_alignParentBottom="true"
+                android:background="@color/color_line_widget" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" >
+
+            <ImageView
+                android:id="@+id/widget_color2"
+                android:layout_width="3dp"
+                android:layout_height="fill_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_marginBottom="2dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="2dp"
+                android:layout_marginTop="2dp"
+                android:src="@+drawable/color_emi" />
+
+            <ImageView
+                android:id="@+id/widget_download2"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_alignParentRight="true"
+                android:layout_margin="2dp"
+                android:src="@+drawable/telechargement_video_menu_top" />
+
+            <TextView
+                android:layout_width="1dp"
+                android:layout_height="fill_parent"
+                android:layout_toLeftOf="@+id/widget_download2"
+                android:background="@color/color_line_widget" />
+
+            <FrameLayout
+                android:id="@+id/widget_emi2"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_toLeftOf="@+id/widget_download2"
+                android:layout_toRightOf="@+id/widget_color2"
+                android:padding="2dp" >
+
+                <TextView
+                    android:id="@+id/widget_message2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="Une example d&apos;article"
+                    android:textColor="@color/color_text"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/widget_check_image2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="2dp"
+                    android:src="@+drawable/wid_check"
+                    android:visibility="invisible" />
+            </FrameLayout>
+        </RelativeLayout>
+    </LinearLayout>
+
+</FrameLayout>

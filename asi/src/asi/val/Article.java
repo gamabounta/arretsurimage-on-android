@@ -31,7 +31,7 @@ public class Article {
 		this.title = t;
 		this.description = d;
 		this.uri = u;
-		this.color=null;
+		this.color = null;
 	}
 
 	public Article() {
@@ -39,7 +39,7 @@ public class Article {
 		this.description = "d";
 		this.uri = "";
 		this.date = "";
-		this.color=null;
+		this.color = null;
 	}
 
 	public String getTitle() {
@@ -53,18 +53,18 @@ public class Article {
 	public String getDescription() {
 		return description;
 	}
-	
+
 	public void setDescription(String des) {
 		this.description = des;
 	}
-	
+
 	public void setDescriptionOnRSS(String des) {
 		des = des.replaceAll("\n", "");
-		//des = des.replaceAll("<br />", "");
+		// des = des.replaceAll("<br />", "");
 		String[] parse = des.split("<br />");
-		if(parse.length>1){
+		if (parse.length > 1) {
 			this.determined_color(parse[0]);
-			des=parse[1];
+			des = parse[1];
 		}
 		int fin = des.length();
 		if (fin > 100)
@@ -75,19 +75,48 @@ public class Article {
 		this.description = des;
 	}
 
-	private void determined_color(String title) {
-		// TODO Auto-generated method stub
-		//Log.d("ASI","cat= "+title);
-		if(title.contains("Vite dit"))
-			this.color="#FEC763";
-		else if(title.contains("chronique"))
-			this.color="#FF398E";
-		else if(title.contains("mission"))
-			this.color="#3A36FF";
-		else if(title.contains("Article"))
-			this.color="#3399FF";
+	public boolean isEmission(){
+		if(this.getColor().equals("#3A36FF"))
+				return true;
+			else
+				return(false);
 	}
 	
+	public boolean isChronique(){
+		if(this.getColor().equals("#FF398E"))
+				return true;
+			else
+				return(false);
+	}
+	
+	public boolean isArticle(){
+		if(this.getColor().equals("#3399FF"))
+				return true;
+			else
+				return(false);
+	}
+	
+	public boolean isViteDit(){
+		if(this.getColor().equals("#FEC763"))
+				return true;
+			else
+				return(false);
+	}
+	
+
+	private void determined_color(String title) {
+		// TODO Auto-generated method stub
+		// Log.d("ASI","cat= "+title);
+		if (title.contains("Vite dit"))
+			this.color = "#FEC763";
+		else if (title.contains("chronique"))
+			this.color = "#FF398E";
+		else if (title.contains("mission"))
+			this.color = "#3A36FF";
+		else if (title.contains("Article"))
+			this.color = "#3399FF";
+	}
+
 	public void setDescriptionOnRecherche(String html) {
 		html = html.replaceAll("\n", "");
 		html = html.replaceAll("\\s+", " ");
@@ -100,12 +129,12 @@ public class Article {
 		html = html + " ...";
 		this.description = html;
 	}
-	
+
 	public void setDescriptionOnForum(String html) {
 		html = html.replaceAll("%%", "\n");
 		this.description = html;
 	}
-	
+
 	public String getUri() {
 		return uri;
 	}
@@ -130,20 +159,20 @@ public class Article {
 	}
 
 	public String getColor() {
-		if(this.color==null)
-			return("#ACB7C6");
+		if (this.color == null)
+			return ("#ACB7C6");
 		return color;
 	}
 
 	public void set_color_from_recherche(String rec) {
-		if(rec.contains("vite"))
-			this.color="#FEC763";
-		else if(rec.contains("chro"))
-			this.color="#FF398E";
-		else if(rec.contains("emi"))
-			this.color="#3A36FF";
-		else if(rec.contains("doss"))
-			this.color="#3399FF";
+		if (rec.contains("vite"))
+			this.color = "#FEC763";
+		else if (rec.contains("chro"))
+			this.color = "#FF398E";
+		else if (rec.contains("emi"))
+			this.color = "#3A36FF";
+		else if (rec.contains("doss"))
+			this.color = "#3399FF";
 	}
 
 }

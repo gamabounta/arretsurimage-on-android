@@ -5,6 +5,7 @@
 	<color name="color_white">#FFFFFF</color>
 	<color name="color_black">#000000</color>
 	<color name="color_griser">#f2f2f2</color>	
+	<color name="color_rouge">#ab1717</color>		
 	<color name="actionbar_separator">#e9e9e9</color>
 	<color name="actionbar_divider">#e9e9e9</color>
     <color name="actionbar_background_start">#ffffff</color>

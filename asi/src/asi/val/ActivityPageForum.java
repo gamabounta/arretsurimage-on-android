@@ -11,33 +11,50 @@ import java.util.ArrayList;
 
 import com.markupartist.android.widget.ActionBar;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.InputType;
+import android.os.AsyncTask.Status;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
+import android.view.MenuItem.OnMenuItemClickListener;
+import asi.val.FragmentPage.OnLinkSelectedListener;
+import asi.val.FragmentPostComment.OnPostCommentListener;
 
-public class ActivityPageForum extends ActivityPage {
+public class ActivityPageForum extends ActivityAsiBase implements
+		OnLinkSelectedListener, OnPostCommentListener {
 
 	private ForumPost forumPost;
 
+	private String pagedata;
+
+	private get_page_content contentTask;
+
+	private sendPostComment commentTask;
+
+	private ActionBar actionBar;
+	
+	private Categorie forum;
+
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-	}
 
-	protected void actionBarInflateMenu(ActionBar actionBar) {
-		getMenuInflater().inflate(R.menu.forum_menu_top, actionBar.asMenu());
+		setContentView(R.layout.main);
+		forum = this.getIntent().getExtras().getParcelable("forum");
+
+		if (savedInstanceState == null) {
+			this.load_content();
+		}
+
+		actionBar = (ActionBar) findViewById(R.id.actionbar);
 		this.addNavigationToActionBar(actionBar, "Forum");
 		actionBar.setDisplayShowHomeEnabled(true);
 		actionBar.addAction(actionBar.newAction(R.id.actionbar_item_home)
 				.setIcon(R.drawable.pola_forum));
+
+		// dual-mode ou bouton
+		this.loadCommentDual();
 	}
 
 	public void onSaveInstanceState(final Bundle b) {
@@ -50,6 +67,8 @@ public class ActivityPageForum extends ActivityPage {
 			}
 			b.putStringArrayList("forumPost", Save);
 		}
+		if (pagedata != null)
+			b.putString("pagedata", pagedata);
 		super.onSaveInstanceState(b);
 	}
 
@@ -58,7 +77,6 @@ public class ActivityPageForum extends ActivityPage {
 		ArrayList<String> Save = b.getStringArrayList("forumPost");
 		if (Save != null) {
 			Log.d("ASI", "Récupération du forumPost");
-
 			if (!Save.isEmpty()) {
 				this.forumPost = new ForumPost();
 				for (int i = 0; i < (Save.size() - 1); i = (i + 2)) {
@@ -66,81 +84,165 @@ public class ActivityPageForum extends ActivityPage {
 				}
 			}
 		}
+		pagedata = b.getString("pagedata");
+		if (pagedata == null) {
+			Log.d("ASI", "Rien a recuperer");
+			contentTask = new get_page_content();
+			contentTask.execute(forum.getUrl());
+		}
 		super.onRestoreInstanceState(b);
 	}
 
-	public void load_content() {
-		// récuperation des articles via l'URL
-		new get_page_content().execute(this.getIntent().getExtras()
-				.getString("url"));
-		// Sur le forum de test
-		//new get_page_content().execute("http://www.arretsurimages.net/forum/read.php?12,1197521,1198387");
+	@Override
+	protected void onDestroy() {
+		Log.d("ASI", "ActivityPageForum onDestroy");
+		if (contentTask != null
+				&& !contentTask.getStatus().equals(Status.FINISHED)) {
+			contentTask.cancel(true);
+		}
+		if (commentTask != null
+				&& !commentTask.getStatus().equals(Status.FINISHED)) {
+			commentTask.cancel(true);
+		}
+		super.onDestroy();
 	}
 
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle item selection
-		switch (item.getItemId()) {
-		case R.id.post_item:
-			this.prepareComment();
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
+	public void load_content() {
+		// On arrete l'ancien
+		if (contentTask != null
+				&& !contentTask.getStatus().equals(Status.FINISHED)) {
+			contentTask.cancel(true);
 		}
+
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager
+				.beginTransaction();
+		FragmentLoad fragment = new FragmentLoad();
+		fragmentTransaction.replace(R.id.container, fragment);
+		fragmentTransaction.commit();
+
+		contentTask = new get_page_content();
+		contentTask.execute(forum.getUrl());
+		// Sur le forum de test
+		// new
+		// get_page_content().execute("http://www.arretsurimages.net/forum/read.php?12,1197521,1198387");
+	}
+
+	public void load_data() {
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager
+				.beginTransaction();
+		FragmentPage fragment = FragmentPage.newInstance(this.pagedata);
+		fragmentTransaction.replace(R.id.container, fragment, "page");
+		fragmentTransaction.commitAllowingStateLoss();
+	}
+
+	private void loadCommentDual() {
+		// Non abonnée, pas acces au post
+		if (this.get_datas().getCookies().equals("phorum_session_v5=deleted"))
+			return;
+		if (this.isDualMode()) {
+			FragmentManager fragmentManager = getSupportFragmentManager();
+			FragmentPostComment fragment = (FragmentPostComment) fragmentManager
+					.findFragmentByTag("comment");
+			if (fragment == null) {
+				FragmentTransaction fragmentTransaction = fragmentManager
+						.beginTransaction();
+				fragment = new FragmentPostComment();
+				fragmentTransaction.add(R.id.container_little, fragment,
+						"comment");
+				fragmentTransaction.commit();
+			}
+		} else {
+			actionBar.addAction(actionBar.newAction()
+					.setIcon(R.drawable.post_menu_top)
+					.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+						public boolean onMenuItemClick(MenuItem item) {
+							ActivityPageForum.this.prepareComment();
+							return true;
+						}
+					}));
+		}
+	}
+
+	protected void setPageData(String html) {
+		pagedata = html;
 	}
 
 	private void prepareComment() {
-		if (this.get_datas().getCookies().equals("phorum_session_v5=deleted")) {
-			new DialogError(this, "Envoie du Commentaire",
-					"Ce forum n'est accéssible qu'aux abonnés").show();
-		} else if (this.forumPost != null) {
-			new DialogComment(this).show();
+		if (this.isDualMode())
+			return;
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager
+				.beginTransaction();
+		FragmentPostComment fragment = new FragmentPostComment();
+		fragmentTransaction.addToBackStack("comment");
+		fragmentTransaction.replace(R.id.container, fragment,
+				"comment_principal");
+		fragmentTransaction.commit();
+	}
+	
+
+	protected void finishSendComment() {
+		if(!this.isDualMode()){
+			FragmentManager fragmentManager = getSupportFragmentManager();
+			fragmentManager.popBackStackImmediate();
 		}
+		this.load_content();
+	};
+
+	@Override
+	public void onVideoLink(String url) {
+		// On fait rien
 	}
 
-	protected void postComment(String comment) {
+	@Override
+	public void onForumLink(String url) {
+		// On fait rien
+	};
+
+	@Override
+	public void OnPostComment(String comment) {
 		// TODO Auto-generated method stub
 		Log.d("asi", "Post a comment");
-		if (comment != "") {
-			forumPost.addHiddenValue("subject", "Re: "
-					+ this.getIntent().getExtras().getString("titre"));
-			forumPost.addHiddenValue("body", comment);
-			StringBuilder donnees = new StringBuilder("");
-			donnees.append("forum_id="
-					+ forumPost.getHiddenValue().get("forum_id") + "&");
-			try {
-				for (String key : forumPost.getHiddenValue().keySet()) {
-					donnees.append(URLEncoder.encode(key, "UTF-8"));
-					donnees.append("="
-							+ URLEncoder.encode(
-									forumPost.getHiddenValue().get(key),
-									"UTF-8") + "&");
-				}
-				donnees.append("finish=>%20Envoyer");
-				Log.d("asi", donnees.toString());
-				new sendPostComment().execute(donnees.toString());
-			} catch (Exception e) {
-				new DialogError(this, "Envoie du Post", e).show();
+		forumPost.addHiddenValue("subject", "Re: "
+				+ forum.getTitre());
+		forumPost.addHiddenValue("body", comment);
+		StringBuilder donnees = new StringBuilder("");
+		donnees.append("forum_id=" + forumPost.getHiddenValue().get("forum_id")
+				+ "&");
+		try {
+			for (String key : forumPost.getHiddenValue().keySet()) {
+				donnees.append(URLEncoder.encode(key, "UTF-8"));
+				donnees.append("="
+						+ URLEncoder.encode(
+								forumPost.getHiddenValue().get(key), "UTF-8")
+						+ "&");
 			}
+			donnees.append("finish=>%20Envoyer");
+			Log.d("asi", donnees.toString());
+			commentTask = new sendPostComment();
+			commentTask.execute(donnees.toString());
+		} catch (Exception e) {
+			new DialogError(this, "Envoie du Post", e).show();
 		}
 
 	}
 
 	private class get_page_content extends AsyncTask<String, Void, String> {
-		private final DialogProgress dialog = new DialogProgress(
-				ActivityPageForum.this, this);
+		private String data;
+		private ForumPost forumPost;
 
 		// can use UI thread here
 		protected void onPreExecute() {
-			this.dialog.setMessage("Chargement...");
-			this.dialog.show();
 		}
 
 		// automatically done on worker thread (separate from UI thread)
 		protected String doInBackground(String... args) {
 			try {
 				PageForum re = new PageForum(args[0]);
-				ActivityPageForum.this.setPagedata(re.getComment());
-				ActivityPageForum.this.setForumPost(re.getForumPost());
+				data = re.getComment();
+				forumPost = re.getForumPost();
 			} catch (Exception e) {
 				String error = e.toString() + "\n" + e.getStackTrace()[0]
 						+ "\n" + e.getStackTrace()[1];
@@ -150,16 +252,11 @@ public class ActivityPageForum extends ActivityPage {
 		}
 
 		protected void onPostExecute(String error) {
-			if (this.dialog.isShowing()) {
-				try {
-					this.dialog.dismiss();
-				} catch (Exception e) {
-					Log.e("ASI", "Erreur d'arrêt de la boîte de dialogue");
-				}
-			}
-			if (error == null)
-				ActivityPageForum.this.load_page();
-			else {
+			if (error == null) {
+				ActivityPageForum.this.setPageData(data);
+				ActivityPageForum.this.setForumPost(forumPost);
+				ActivityPageForum.this.load_data();
+			} else {
 				ActivityPageForum.this.erreur_loading(error);
 			}
 		}
@@ -249,97 +346,9 @@ public class ActivityPageForum extends ActivityPage {
 						"Envoie du Commentaire", mess).show();
 			} else {
 				Log.d("asi", "send with success");
-				ActivityPageForum.this.load_content();
+				ActivityPageForum.this.finishSendComment();
 			}
 		}
-	};
+	}
 
-	private class DialogComment extends AlertDialog.Builder {
-
-		private EditText txt_comment;
-
-		private Context mContext;
-
-		public DialogComment(Context arg0) {
-			super(arg0);
-			this.mContext = arg0;
-			this.defined_interface();
-		}
-
-		private void defined_interface() {
-
-			LayoutInflater inflater = (LayoutInflater) mContext
-					.getSystemService(android.content.Context.LAYOUT_INFLATER_SERVICE);
-			View layout = inflater.inflate(R.layout.post_comment_dialog, null);
-			txt_comment = (EditText) layout.findViewById(R.id.comment_texte);
-			txt_comment.setInputType(InputType.TYPE_CLASS_TEXT
-					| InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-					| InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
-					| InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-			Button b;
-			b = (Button) layout.findViewById(R.id.comment_B);
-			b.setOnClickListener(
-					new Button.OnClickListener() {
-						public void onClick(View arg0) {
-							txt_comment.append("[b][/b]");
-						}
-					});
-			b = (Button) layout.findViewById(R.id.comment_I);
-			b.setOnClickListener(
-					new Button.OnClickListener() {
-						public void onClick(View arg0) {
-							txt_comment.append("[i][/i]");
-						}
-					});
-			b = (Button) layout.findViewById(R.id.comment_small);
-			b.setOnClickListener(
-					new Button.OnClickListener() {
-						public void onClick(View arg0) {
-							txt_comment.append("[small][/small]");
-						}
-					});
-			b = (Button) layout.findViewById(R.id.comment_large);
-			b.setOnClickListener(
-					new Button.OnClickListener() {
-						public void onClick(View arg0) {
-							txt_comment.append("[large][/large]");
-						}
-					});
-			b = (Button) layout.findViewById(R.id.comment_url);
-			b.setOnClickListener(
-					new Button.OnClickListener() {
-						public void onClick(View arg0) {
-							txt_comment.append("[url=http://][/url]");
-						}
-					});
-			b = (Button) layout.findViewById(R.id.comment_quote);
-			b.setOnClickListener(
-					new Button.OnClickListener() {
-						public void onClick(View arg0) {
-							txt_comment.append("[quote=DS][/quote]");
-						}
-					});
-			this.setView(layout);
-			// this.setMessage(message+"\n\n"+error);
-			this.setTitle("Commentaire");
-			this.setPositiveButton("Poster",
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							Log.d("ASI", "comment-" + txt_comment.getText());
-							try {
-								ActivityPageForum.this.postComment(""
-										+ txt_comment.getText());
-							} catch (Exception e) {
-								new DialogError(
-										mContext,
-										"Chargement de la fenetre de dialog de commentaire",
-										e).show();
-								dialog.cancel();
-							}
-							dialog.cancel();
-						}
-					});
-		}
-
-	};
 }

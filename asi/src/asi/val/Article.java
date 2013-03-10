@@ -15,7 +15,10 @@
 
 package asi.val;
 
-public class Article {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Article implements Parcelable {
 
 	private String title;
 
@@ -26,20 +29,25 @@ public class Article {
 	private String date;
 
 	private String color;
+	
+	private String image;
 
 	public Article(String t, String d, String u) {
 		this.title = t;
 		this.description = d;
 		this.uri = u;
+		this.date = "";
 		this.color = null;
+		this.image = "";
 	}
 
 	public Article() {
-		this.title = "T";
-		this.description = "d";
+		this.title = "";
+		this.description = "";
 		this.uri = "";
 		this.date = "";
 		this.color = null;
+		this.image = "";
 	}
 
 	public String getTitle() {
@@ -174,5 +182,48 @@ public class Article {
 		else if (rec.contains("doss"))
 			this.color = "#3399FF";
 	}
+	
+	public String getImageUrl() {
+		return image;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		imageUrl =  imageUrl.replace("320x240", "140x105");
+		imageUrl = imageUrl.replace("player_e", "player_s");
+		this.image = imageUrl;
+	}
+	
+	public static final Parcelable.Creator<Article> CREATOR = new Parcelable.Creator<Article>() {
+		public Article createFromParcel(Parcel in) {
+			return new Article(in);
+		}
+
+		public Article[] newArray(int size) {
+			return new Article[size];
+		}
+	};
+
+	private Article(Parcel in) {
+		this.title = in.readString();
+		this.description = in.readString();
+		this.uri = in.readString();
+		this.date = in.readString();
+		this.color = in.readString();
+		this.image = in.readString();
+	}
+
+	public int describeContents() {
+		return 0;
+	}
+
+	public void writeToParcel(Parcel out, int arg1) {
+		out.writeString(this.title);
+		out.writeString(this.description);
+		out.writeString(this.uri);
+		out.writeString(this.date);
+		out.writeString(this.getColor());
+		out.writeString(this.image);
+	}
+
 
 }

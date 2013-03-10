@@ -1,62 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string-array name="catT">
-		<item>>TOUT LE SITE</item>
+		<item>TOUT LE SITE</item>
 		<item>toutlesite</item>
 		<item>http://www.arretsurimages.net/rss/tous-les-contenus.rss</item>
-		<item>no</item>
+		<item></item>
 		<item>#ACB7C6</item>
 	</string-array>
 	<string-array name="catE">
-		<item>>EMISSIONS</item>
-		<item>"@rrêt sur images, Ligne j@une, D@ns le texte;"</item>
+		<item>EMISSIONS</item>
+		<item>pola_asi</item>
 		<item>http://www.arretsurimages.net/rss/emissions.rss</item>
 		<item>subcatE</item>
 		<item>#3A36FF</item>
 	</string-array>
 	<string-array name="catC">
-		<item>>CHRONIQUES</item>
-		<item>"Chez Daniel, Chez Judith, Chez Alain,
-			Chez les matinautes, Chez Anne-Sophie,
-			Chez Sherlock Com', Chez Rafik, Chez Didier,
-			Chez la Parisienne, Chez les sarkosis, Chez Nous"</item>
+		<item>CHRONIQUES</item>
+		<item>kro</item>
 		<item>http://www.arretsurimages.net/rss/chroniques.rss</item>
 		<item>subcatC</item>
 		<item>#FF398E</item>
 	</string-array>
 	<string-array name="catD">
-		<item>>ARTICLES DE LA REDACTION</item>
+		<item>ARTICLES DE LA REDACTION</item>
 		<item>articles</item>
 		<item>http://www.arretsurimages.net/rss/dossiers.rss</item>
-		<item>no</item>
+		<item></item>
 		<item>#3399FF</item>
 	</string-array>
 	<string-array name="catG">
-		<item>">GRATUIT AUJOURD'HUI"</item>
+		<item>"GRATUIT AUJOURD'HUI"</item>
 		<item>gratuit</item>
 		<item>http://www.arretsurimages.net/rss/gratuit.rss</item>
-		<item>no</item>
+		<item></item>
 		<item>#FEC763</item>
 	</string-array>
 	<string-array name="catV">
-		<item>>VITE DIT</item>
+		<item>VITE DIT</item>
 		<item>vite</item>
 		<item>http://www.arretsurimages.net/rss/vite-dit.rss</item>
-		<item>no</item>
+		<item></item>
 		<item>#FEC763</item>
 	</string-array>
 	<string-array name="catF">
-		<item>>FORUM</item>
+		<item>FORUM</item>
 		<item>forum</item>
 		<item>http://www.arretsurimages.net/forum/feed.php?0,type=rss</item>
-		<item>no</item>
+		<item></item>
 		<item>#B4DC45</item>
 	</string-array>
 	<string-array name="catR">
-		<item>>RECHERCHE</item>
+		<item>RECHERCHE</item>
 		<item>recherche</item>
 		<item>recherche</item>
-		<item>no</item>
+		<item></item>
 		<item>#ACB7C6</item>
 	</string-array>
 	<string-array name="subcatE">

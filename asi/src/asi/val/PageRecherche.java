@@ -22,7 +22,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,20 +34,20 @@ public class PageRecherche {
 
 	private String post;
 
-	private Vector<Article> articles;
+	private ArrayList<Article> articles;
 	
 	private HTMLEntities convert = new HTMLEntities();
 
 	public PageRecherche(String u) throws MalformedURLException {
 		// lancer directement une recherche depuis un lien
 		url = new URL(u);
-		articles = new Vector<Article>();
+		articles = new ArrayList<Article>();
 		post="";
 	}
 
 	public PageRecherche() throws MalformedURLException {
 		// créer une recherche
-		articles = new Vector<Article>();
+		articles = new ArrayList<Article>();
 		url = new URL("http://www.arretsurimages.net/recherche.php");
 		post="";
 	}
@@ -56,7 +56,7 @@ public class PageRecherche {
 		post=p;
 	}
 
-	public Vector<Article> getArticles() throws Exception {
+	public ArrayList<Article> getArticles() throws Exception {
 		BufferedReader in = null;
 		OutputStreamWriter out = null;
 		try {
@@ -85,7 +85,8 @@ public class PageRecherche {
 			Pattern url = Pattern.compile(".*\\<a href\\=\"(.*?)\".*");
 			Pattern titre = Pattern.compile(".*class\\=\"typo-titre\"\\>(.*?)\\<\\/a\\>.*");
 			Pattern link_next = Pattern.compile("\\<a href\\=\"(.*?)\"\\>(.*?)\\<\\/a\\>");
-			
+			Pattern image = Pattern.compile("\\<img src\\=\"(.*?)\" alt");
+				
 			while ((ligneCodeHTML = in.readLine()) != null) {
 				ligneCodeHTML = " " + ligneCodeHTML;
 				
@@ -161,6 +162,12 @@ public class PageRecherche {
 						else
 						article.setTitle(ligneCodeHTML);
 						//enlever les parties HTML du titre
+					}
+					
+					if(ligneCodeHTML.contains("contenu-media")){
+						m = image.matcher(ligneCodeHTML);
+						if(m.find())
+							article.setImageUrl("http://www.arretsurimages.net"+m.group(1));
 					}
 					
 					if(ligneCodeHTML.contains("typo-description")){

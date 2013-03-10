@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="conf_login">
+		<item>login</item>
+		<item>Compte</item>
+		<item>"Définir les données de connection"</item>
+	</string-array>
 	<string-array name="conf_autologin">
 		<item>autologin</item>
 		<item>Auto-login</item>
@@ -10,14 +15,29 @@
 		<item>Type de téléchargement</item>
 		<item>"Choisir le type de téléchargement souhaité"</item>
 	</string-array>
-	<string-array name="conf_zoom">
-		<item>zoom</item>
+	<string-array name="conf_view_image">
+		<item>image_enabled</item>
+		<item>Image visible</item>
+		<item>"Afficher les images dans les listes d'articles"</item>
+	</string-array>
+	<string-array name="conf_view_desc">
+		<item>description_enabled</item>
+		<item>Description visible</item>
+		<item>"Afficher la description dans les listes d'articles"</item>
+	</string-array>
+	<string-array name="conf_view_date">
+		<item>date_enabled</item>
+		<item>Date visible</item>
+		<item>"Afficher la date dans les listes d'articles"</item>
+	</string-array>
+	<string-array name="conf_zoom_level">
+		<item>zoom_level</item>
 		<item>Taille de la police</item>
-		<item>"Définir le niveau de zoom des articles"</item>
-	</string-array>
-	<string-array name="enable_zoom">
-		<item>enable_zoom</item>
-		<item>Activer le Zoom</item>
+		<item>"Choisir la taille des caractères dans les articles"</item>
+	</string-array>	
+	<string-array name="conf_zoom_enable">
+		<item>zoom_enable</item>
+		<item>Activer le zoom</item>
 		<item>"Ajouter les controles du zoom dans les articles"</item>
-	</string-array>
+	</string-array>	
 </resources>

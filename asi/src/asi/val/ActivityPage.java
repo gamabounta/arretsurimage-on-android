@@ -16,7 +16,6 @@
 package asi.val;
 
 import java.util.ArrayList;
-
 import com.markupartist.android.widget.ActionBar;
 
 import android.app.AlertDialog;
@@ -24,112 +23,245 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.AsyncTask.Status;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Toast;
+import asi.val.FragmentListArticle.OnArticleSelectedListener;
+import asi.val.FragmentPage.OnLinkSelectedListener;
 
-public class ActivityPage extends ActivityAsiBase {
+public class ActivityPage extends ActivityAsiBase implements
+		OnArticleSelectedListener, OnLinkSelectedListener {
 	/** Called when the activity is first created. */
-
-	private WebView mywebview;
 
 	private String pagedata;
 
-	private String page_title;
+	private get_page_content asyntask;
 
-	private String forum_link;
+	protected Article article;
+
+	private ArrayList<Article> articles;
+
+	protected String forum_link;
 
 	protected ArrayList<Video> videos;
 
-	protected ActionBar actionBar;
+	private ActionBar actionBar;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.d("ASI", "ActivityPage onCreate");
+		articles = this.getIntent().getExtras()
+				.getParcelableArrayList("articles");
 
-		setContentView(R.layout.pageview);
+		setContentView(R.layout.main);
 
-		// titre de la page
-		setPage_title(this.getIntent().getExtras().getString("titre"));
-
-		// Récupération de la listview créée dans le fichier main.xml
-		mywebview = (WebView) this.findViewById(R.id.WebViewperso);
-
-		this.actionBar = (ActionBar) findViewById(R.id.actionbar);
-		this.actionBarInflateMenu(actionBar);
-
-		Log.d("ASI", "On_create_page_activity");
-		if (savedInstanceState != null)
+		if (savedInstanceState != null) {
 			Log.d("ASI", "On_create_page_activity_from_old");
-		else
+			article = savedInstanceState.getParcelable("article");
+		} else {
+			article = this.getIntent().getExtras().getParcelable("article");
 			this.load_content();
+		}
+		// Chargement des articles si dual-mode et pas déjà instancier
+		this.loadArticles();
+
+		actionBar = (ActionBar) findViewById(R.id.actionbar);
+		getMenuInflater().inflate(R.menu.page_menu_top, actionBar.asMenu());
+		actionBar.setDisplayShowHomeEnabled(true);
+		this.addNavigationToActionBar(actionBar, article.getTitle());
+
 	}
 
-	protected void actionBarInflateMenu(ActionBar actionBar) {
-		getMenuInflater().inflate(R.menu.page_menu_top, actionBar.asMenu());
-		this.addNavigationToActionBar(actionBar, this.getPage_title());
-		// actionBar.setDisplayShowHomeEnabled(true);
+	public void loadArticles() {
+		if (!this.isDualMode() || this.articles == null) {
+			Log.d("lemonde", "ActivityPage Without FragmentList");
+			return;
+		}
+		Log.d("ASI", "ActivityPage Load FragmentList");
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentListArticle fragment = (FragmentListArticle) fragmentManager
+				.findFragmentByTag("articles");
+		if (fragment == null) {
+			FragmentTransaction fragmentTransaction = fragmentManager
+					.beginTransaction();
+			fragment = FragmentListArticle.newInstance(articles);
+			fragmentTransaction.replace(R.id.container_little, fragment,
+					"articles");
+			fragmentTransaction.commit();
+		}
 	}
 
 	public void onSaveInstanceState(final Bundle b) {
-		Log.d("ASI", "onSaveInstanceState");
+		Log.d("ASI", "ActivityPage onSaveInstanceState");
 		if (this.pagedata != null) {
 			b.putString("page_data", this.pagedata);
-		}
-		if (this.videos != null && !this.videos.isEmpty()) {
-			ArrayList<String> videoSave = new ArrayList<String>();
-			for (Video v : this.videos) {
-				videoSave.add(v.getTitle());
-				videoSave.add("" + v.getNumber());
-				videoSave.add(v.getURL());
+			//Ajout video et forum
+			if (this.videos != null && !this.videos.isEmpty()) {
+				b.putParcelableArrayList("video_links", this.videos);
 			}
-			b.putStringArrayList("video_links", videoSave);
+			if (this.forum_link != null) {
+				b.putString("forum_link", forum_link);
+			}
 		}
-		if (this.forum_link != null) {
-			b.putString("forum_link", forum_link);
-		}
+		b.putParcelable("article", article);
 		super.onSaveInstanceState(b);
 	}
 
 	public void onRestoreInstanceState(final Bundle b) {
-		Log.d("ASI", "onRestoreInstanceState");
+		Log.d("ASI", "ActivityPage onRestoreInstanceState");
 		super.onRestoreInstanceState(b);
-		String name = b.getString("page_data");
-		if (name != null) {
-			this.pagedata = name;
-			Log.d("ASI", "Récupération du contenu de la page");
+		String data = b.getString("page_data");
+		if (data != null) {
+			this.pagedata = data;
+			Log.d("ASI", "Recuperation du content de la page");
 			this.forum_link = b.getString("forum_link");
-			
-			ArrayList<String> videoSave = b.getStringArrayList("video_links");
-			if (videoSave != null && !videoSave.isEmpty()) {
-				this.videos = new ArrayList<Video>();
-				Video v;
-				for (int i = 0; i < (videoSave.size()-2); i = (i + 3)) {
-					v = new Video();
-					v.setTitle(videoSave.get(i));
-					v.setNumber(Integer.parseInt(videoSave.get(i + 1)));
-					v.setURL(videoSave.get(i + 2));
-					this.videos.add(v);
-				}
-			}
-			this.load_page();
-
+			this.videos = b.getParcelableArrayList("video_links");
+			//on ajoute les boutons si nécessaire
+			this.loadActionbarButton();
 		} else {
-			Log.d("ASI", "Rien a récupérer");
-			this.load_content();
+			Log.d("ASI", "Rien a recuperer");
+			asyntask = new get_page_content();
+			asyntask.execute(article.getUri());
 		}
-		// titre de la page
-		setPage_title(this.getIntent().getExtras().getString("titre"));
+	}
+
+	@Override
+	protected void onDestroy() {
+		Log.d("ASI", "ActivityPage onDestroy");
+		if (asyntask != null && !asyntask.getStatus().equals(Status.FINISHED)) {
+			asyntask.cancel(true);
+		}
+		super.onDestroy();
 	}
 
 	public void load_content() {
-		new get_page_content().execute(this.getIntent().getExtras()
-				.getString("url"));
+		// On arrete l'ancien
+		if (asyntask != null && !asyntask.getStatus().equals(Status.FINISHED)) {
+			asyntask.cancel(true);
+		}
+
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager
+				.beginTransaction();
+		FragmentLoad fragment = new FragmentLoad();
+		fragmentTransaction.replace(R.id.container, fragment);
+		fragmentTransaction.commit();
+
+		asyntask = new get_page_content();
+		asyntask.execute(article.getUri());
+	}
+
+	public void load_data() {
+		this.loadActionbarButton();
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager
+				.beginTransaction();
+		FragmentPage fragment = FragmentPage.newInstance(this.pagedata);
+		fragmentTransaction.replace(R.id.container, fragment, "page");
+		fragmentTransaction.commitAllowingStateLoss();
+	}
+
+	public void loadActionbarButton() {
+		if (this.forum_link != null) {
+			actionBar.addAction(actionBar.newAction()
+					.setIcon(R.drawable.forum_menu_top)
+					.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+						public boolean onMenuItemClick(MenuItem item) {
+							ActivityPage.this
+									.onForumLink(ActivityPage.this.forum_link);
+							return true;
+						}
+					}));
+		}
+		if (this.videos != null && !this.videos.isEmpty()) {
+			actionBar.addAction(actionBar.newAction()
+					.setIcon(R.drawable.telechargement_video_menu_top)
+					.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+						public boolean onMenuItemClick(MenuItem item) {
+							ActivityPage.this.telecharger_actes();
+							return true;
+						}
+					}));
+		}
+	}
+
+	public void setPagedata(String data) {
+		this.pagedata = data;
+	}
+
+	public String getPagedata() {
+		return pagedata;
+	}
+
+	public void setForumLink(String link) {
+		this.forum_link = link;
+	}
+
+	public void setVideo(ArrayList<Video> videos2) {
+		// AJoute le bouton si video n'est pas vide
+		this.videos = videos2;
+	}
+
+	public void telecharger_actes() {
+		final int nb_actes = videos.size();
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Vidéos de l'article");
+
+		builder.setMessage("Voulez-vous lancer le téléchargement des "
+				+ nb_actes + " vidéos de cette article?");
+		builder.setNegativeButton("Non", null);
+		builder.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				Video video_selected = null;
+				for (int i = 0; i < nb_actes; i++) {
+					// if(items_selected[i]) {
+					video_selected = videos.get(i);
+					video_selected.setNumber(i + 1);
+					video_selected.setTitle(article.getTitle());
+					Intent intent = new Intent(getApplicationContext(),
+							ServiceDownload.class);
+					intent.putExtra("dlsync", ActivityPage.this.get_datas()
+							.isDlSync());
+					intent.putExtra("video", video_selected);
+					ActivityPage.this.startService(intent);
+					// }
+				}
+			}
+		});
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+
+	public void OnArticleSelected(Article art, int pos) {
+		this.article = art;
+		ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
+		actionBar.setTitle(article.getTitle());
+		this.pagedata=null;
+		this.forum_link=null;
+		this.videos=null;
+		while(this.actionBar.getActionCount()>1)
+			this.actionBar.removeActionAt(1);
+		this.load_content();
+	}
+
+	public void onForumLink(String url) {
+		Intent i = new Intent(getApplicationContext(), ActivityPageForum.class);
+		Categorie cat = new Categorie();
+		cat.setTitre(article.getTitle());
+		cat.setColor("#B4DC45");
+		cat.setUrl(url);
+		int img = this.getResources().getIdentifier("forum", "drawable",
+				this.getPackageName());
+		cat.setImage(img);
+		i.putExtra("forum", cat);
+		ActivityPage.this.startActivity(i);
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -152,7 +284,8 @@ public class ActivityPage extends ActivityAsiBase {
 			Intent emailIntent = new Intent(Intent.ACTION_SEND);
 			emailIntent.putExtra(Intent.EXTRA_TEXT,
 					"Un article interessant sur le site arretsurimage.net :\n"
-							+ this.page_title + "\n" + this.getIntent().getExtras().getString("url"));
+							+ this.article.getTitle() + "\n"
+							+ this.article.getUri());
 			emailIntent.setType("text/plain");
 			startActivity(Intent.createChooser(emailIntent,
 					"Partager cet article"));
@@ -162,211 +295,47 @@ public class ActivityPage extends ActivityAsiBase {
 		}
 	}
 
-	protected void load_page() {
-		// ac.replaceView(R.layout.pageview);
-		try {
-			// On ajoute les boutons si videos ou forum
-			if (this.forum_link != null) {
-				actionBar.addAction(actionBar
-						.newAction()
-						.setIcon(R.drawable.forum_menu_top)
-						.setOnMenuItemClickListener(
-								new OnMenuItemClickListener() {
-									public boolean onMenuItemClick(MenuItem item) {
-										Intent i = new Intent(
-												getApplicationContext(),
-												ActivityPageForum.class);
-										i.putExtra("titre",
-												ActivityPage.this.page_title);
-										i.putExtra("color", "#B4DC45");
-										i.putExtra("image", "forum");
-										i.putExtra("url",
-												ActivityPage.this.forum_link);
-										ActivityPage.this.startActivity(i);
-										return true;
-									}
-								}));
-			}
-			if (this.videos != null && !this.videos.isEmpty()) {
-				actionBar.addAction(actionBar.newAction()
-						.setIcon(R.drawable.telechargement_video_menu_top)
-						.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-							public boolean onMenuItemClick(MenuItem item) {
-								ActivityPage.this.telecharger_actes();
-								return true;
-							}
-						}));
-			}
+	private class get_page_content extends AsyncTask<String, Void, String> {
+		String data;
+		ArrayList<Video> videos;
+		String forumLink;
 
-			// les définitions de type mime et de l'encodage
-			final String mimeType = "text/html";
-			final String encoding = "utf-8";
-
-			// on charge le code HTML dans la webview
-			mywebview.loadDataWithBaseURL("http://www.arretsurimages.net",
-					this.pagedata, mimeType, encoding, null);
-			mywebview.setWebViewClient(new myWebViewClient());
-			mywebview
-					.setInitialScale((int) (this.get_datas().getZoomLevel() * mywebview
-							.getScale()));
-			
-			mywebview.getSettings().setBuiltInZoomControls(this.get_datas().isZoomEnable());
-
-		} catch (Exception e) {
-			new DialogError(this, "Chargement de la page", e).show();
+		// // can use UI thread here
+		protected void onPreExecute() {
 		}
 
-	}
+		protected void onCancelled() {
+			Log.d("lemonde", "On Cancel");
+		}
 
-	private class myWebViewClient extends WebViewClient {
-		public boolean shouldOverrideUrlLoading(WebView view, String url) {
+		// automatically done on worker thread (separate from UI thread)
+		protected String doInBackground(String... args) {
 			try {
-				if (url.matches(".*arretsurimages\\.net.*")) {
-					if (url.matches(".*mp3.*")) {
-						Log.d("ASI", "Audio-" + url);
-						Intent intent = new Intent();
-						intent.setAction(android.content.Intent.ACTION_VIEW);
-						intent.setDataAndType(Uri.parse(url), "audio/*");
-						startActivity(intent);
-					} else if (url
-							.matches(".*arretsurimages\\.net\\/contenu.*")) {
-						Log.d("ASI", "Chargement arrêt sur image");
-						Intent i = new Intent(getApplicationContext(),
-								ActivityPage.class);
-						i.putExtra("url", url);
-						ActivityPage.this.startActivity(i);
-					} else if (url.matches(".*arretsurimages\\.net\\/vite.*")) {
-						Log.d("ASI", "Chargement arrêt sur image");
-						Intent i = new Intent(getApplicationContext(),
-								ActivityPage.class);
-						i.putExtra("url", url);
-						ActivityPage.this.startActivity(i);
-					} else if (url
-							.matches(".*arretsurimages\\.net\\/dossier.*")) {
-						Log.d("ASI", "Dossier lancé");
-						Intent i = new Intent(getApplicationContext(),
-								ActivityListArticleRecherche.class);
-						i.putExtra("titre", "DOSSIER");
-						i.putExtra("color", "#3399FF");
-						i.putExtra("image", "articles");
-						i.putExtra("url", url);
-						ActivityPage.this.startActivity(i);
-						// Toast.makeText(
-						// page.this,
-						// "Les liens vers les dossiers ne sont pas pris en charge !",
-						// Toast.LENGTH_LONG).show();
-					} else if (url
-							.matches(".*arretsurimages\\.net\\/recherche.*")) {
-						Log.d("ASI", "Recherche lancé");
-						Intent i = new Intent(getApplicationContext(),
-								ActivityListArticleRecherche.class);
-						i.putExtra("titre", "RECHERCHE");
-						i.putExtra("color", "#ACB7C6");
-						i.putExtra("image", "recherche");
-						i.putExtra("url", url);
-						ActivityPage.this.startActivity(i);
-
-					} else if (url
-							.matches(".*arretsurimages\\.net\\/chroniqueur.*")) {
-						Log.d("ASI", "Chronique lancé");
-						Intent i = new Intent(getApplicationContext(),
-								ActivityListArticleRecherche.class);
-						i.putExtra("titre", "CHRONIQUES");
-						i.putExtra("color", "#FF398E");
-						i.putExtra("image", "kro");
-						i.putExtra("url", url);
-						ActivityPage.this.startActivity(i);
-
-					} else if (url.matches(".*arretsurimages\\.net\\/media.*")) {
-						Intent i = new Intent(getApplicationContext(),
-								ActivityPageImage.class);
-						i.putExtra("url", url);
-						ActivityPage.this.startActivity(i);
-
-					} else if (url.matches(".*arretsurimages\\.net\\/forum.*")) {
-						Intent i = new Intent(getApplicationContext(),
-								ActivityPageForum.class);
-						i.putExtra("titre", ActivityPage.this.page_title);
-						i.putExtra("color", "#B4DC45");
-						i.putExtra("image", "forum");
-						i.putExtra("url", url);
-						ActivityPage.this.startActivity(i);
-
-					} else if (url
-							.matches(".*arretsurimages\\.net\\/emission.*")) {
-						Toast.makeText(
-								ActivityPage.this,
-								"Ce lien n'est pas visible sur l'application Android",
-								Toast.LENGTH_LONG).show();
-					} else {
-						Toast.makeText(
-								ActivityPage.this,
-								"Ce lien n'est pas visible sur l'application Android : ouverture du navigateur",
-								Toast.LENGTH_LONG).show();
-						Intent i = new Intent(Intent.ACTION_VIEW);
-						Uri u = Uri.parse(url);
-						i.setData(u);
-						startActivity(i);
-					}
-					return true;
-				} else if (url
-						.matches(".*http\\:\\/\\/iphone\\.dailymotion\\.com.*")) {
-					Log.d("ASI", "Chargement video");
-					ActivityPage.this.video_choice(url);
-					return (true);
-				} else {
-					Intent i = new Intent(Intent.ACTION_VIEW);
-					Uri u = Uri.parse(url);
-					i.setData(u);
-					startActivity(i);
-					return (true);
-				}
+				PageLoading page_d = new PageLoading(args[0]);
+				data = page_d.getContent();
+				videos = page_d.getVideos();
+				forumLink = page_d.getForum_link();
 			} catch (Exception e) {
-				new DialogError(ActivityPage.this, "Chargement du lien", e)
-						.show();
-				return false;
+				String error = e.toString() + "\n" + e.getStackTrace()[0]
+						+ "\n" + e.getStackTrace()[1];
+				return (error);
+			}
+			return null;
+		}
+
+		protected void onPostExecute(String error) {
+			if (error == null) {
+				ActivityPage.this.setPagedata(data);
+				ActivityPage.this.setVideo(videos);
+				ActivityPage.this.setForumLink(forumLink);
+				ActivityPage.this.load_data();
+			} else {
+				ActivityPage.this.erreur_loading(error);
 			}
 		}
-	};
-
-	public void setPagedata(String pagedata) {
-		// this.pagedata = "<h2>" + page.this.getPage_title() + "</h2>" + "\n"
-		// + pagedata;
-		this.pagedata = pagedata;
-
 	}
 
-	public void telecharger_actes() {
-		final int nb_actes = videos.size();
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("Vidéos de l'article");
-
-		builder.setMessage("Voulez-vous lancer le téléchargement des "
-				+ nb_actes + " vidéos de cette article?");
-		builder.setNegativeButton("Non", null);
-		builder.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				Video video_selected = null;
-				for (int i = 0; i < nb_actes; i++) {
-					// if(items_selected[i]) {
-					video_selected = videos.get(i);
-					video_selected.setNumber(i + 1);
-					video_selected.setTitle(page_title);
-					Intent intent = new Intent(getApplicationContext(), ServiceDownload.class);
-					intent.putExtra("titre", ActivityPage.this.page_title);
-					intent.putExtra("dlsync", ActivityPage.this.get_datas().isDlSync());
-					intent.putExtra("url", video_selected.getLinkURL());
-					ActivityPage.this.startService(intent);
-					// }
-				}
-			}
-		});
-		AlertDialog alert = builder.create();
-		alert.show();
-	}
-
-	public void video_choice(final String url) {
+	public void onVideoLink(final String url) {
 		final CharSequence[] items = { "Visionner", "Télécharger" };
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Vidéo android");
@@ -376,97 +345,19 @@ public class ActivityPage extends ActivityAsiBase {
 					new get_video_url().execute(url);
 				} else {
 					Log.d("ASI", "DownloadVideo");
-					Intent i = new Intent(getApplicationContext(), ServiceDownload.class);
-					i.putExtra("titre", ActivityPage.this.page_title);
-					i.putExtra("dlsync", ActivityPage.this.get_datas().isDlSync());
-					i.putExtra("url", url);
+					Intent i = new Intent(ActivityPage.this
+							.getApplicationContext(), ServiceDownload.class);
+					i.putExtra("dlsync", ActivityPage.this.get_datas()
+							.isDlSync());
+					Video vid = new Video(url);
+					vid.setTitle(ActivityPage.this.article.getTitle());
+					i.putExtra("video", vid);
 					ActivityPage.this.startService(i);
-					//Video vid = new Video(url);
-					//vid.setTitle(page_title);
-					//ActivityPage.this.get_datas().downloadvideo(vid);
 				}
 			}
 		});
 		AlertDialog alert = builder.create();
 		alert.show();
-		// TODO Auto-generated method stub
-	}
-
-	public String getPagedata() {
-		return pagedata;
-	}
-
-	public void setPage_title(String page_title) {
-		if (page_title != null) {
-			this.page_title = page_title;
-			Log.d("ASI", this.page_title);
-		} else {
-			Log.d("ASI", "pas de titre");
-			this.page_title = "Sans titre";
-		}
-	}
-
-	public void setForumLink(String link) {
-		this.forum_link = link;
-	}
-
-	public void setVideo(ArrayList<Video> videos2) {
-		// AJoute le bouton si video n'est pas vide
-		this.videos = videos2;
-	}
-
-	public String getPage_title() {
-		return page_title;
-	}
-
-	private class get_page_content extends AsyncTask<String, Void, String> {
-		private final DialogProgress dialog = new DialogProgress(
-				ActivityPage.this, this);
-
-		// can use UI thread here
-		protected void onPreExecute() {
-			this.dialog.setMessage("Chargement...");
-			this.dialog.show();
-		}
-
-		protected void onCancelled() {
-			Log.d("ASI", "onCancelled");
-		}
-
-		// automatically done on worker thread (separate from UI thread)
-		protected String doInBackground(String... args) {
-			try {
-				PageLoading page_d = new PageLoading(args[0]);
-
-				ActivityPage.this.setPagedata(page_d.getContent());
-				ActivityPage.this.setVideo(page_d.getVideos());
-				ActivityPage.this.setForumLink(page_d.getForum_link());
-
-				ActivityPage.this.get_datas().add_articles_lues(args[0]);
-			} catch (Exception e) {
-				// String error = e.toString() + "\n" + e.getStackTrace()[0]
-				// + "\n" + e.getStackTrace()[1];
-				String error = e.getMessage();
-				return (error);
-			}
-
-			return null;
-		}
-
-		protected void onPostExecute(String error) {
-			try {
-				if (dialog.isShowing())
-					dialog.dismiss();
-			} catch (Exception e) {
-				Log.e("ASI", "Erreur d'arrêt de la boîte de dialogue");
-			}
-			if (error == null) {
-				ActivityPage.this.load_page();
-			} else {
-				Log.e("asi", error);
-				ActivityPage.this.erreur_loading(error);
-			}
-		}
 	}
 
 	private class get_video_url extends AsyncTask<String, Void, String> {
@@ -489,11 +380,9 @@ public class ActivityPage extends ActivityAsiBase {
 		protected String doInBackground(String... args) {
 			try {
 				Video vid = new Video(args[0]);
-				vid.setTitle(page_title);
+				vid.setTitle("");
 				valid_url = vid.get_relink_adress();
 			} catch (Exception e) {
-				// String error = e.toString() + "\n" + e.getStackTrace()[0]
-				// + "\n" + e.getStackTrace()[1];
 				String error = e.getMessage();
 				return (error);
 			}
@@ -518,5 +407,4 @@ public class ActivityPage extends ActivityAsiBase {
 			}
 		}
 	}
-
 }

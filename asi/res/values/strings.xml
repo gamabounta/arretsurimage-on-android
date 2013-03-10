@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="hello">Hello World, main!</string>
-	<string name="app_name">arretsurimages.net</string>
-	<string name="widget_name">ASI (raccourci)</string>
-	<string name="widget_name_news">ASI (news)</string>
-	<string name="widget_name_emi">ASI (émissions)</string>
-	<string name="stop">Stop</string>
-	<string name="apropos">"Bienvenue sur l’application officielle d’@rrêt sur images
+
+    <string name="hello">Hello World, main!</string>
+    <string name="app_name">arretsurimages.net</string>
+    <string name="widget_name">ASI (raccourci)</string>
+    <string name="widget_name_news">ASI (news)</string>
+    <string name="widget_name_emi">ASI (émissions)</string>
+    <string name="stop">Stop</string>
+    <string name="apropos">"Bienvenue sur l’application officielle d’@rrêt sur images
 
 L’appli permet de visionner les derniers contenus produits par le site : émissions, chroniques, articles de la rédaction et vite-dits.
 
@@ -15,14 +16,13 @@ Pour consulter l’ensemble des contenus, il faut être abonné au site. Les non
 L’application a été gracieusement développée par Benoît Valot et publiée sous licence GPL.
 
 Pour toute question, merci de vous reporter à l’espace Android du site www.arretsurimages.net ou de nous écrire à android@arretsurimages.net"</string>
-
-<string name="news">"v1.6
+    <string name="news">"v1.6
 Les commentaires sur le forum sont maintenant visibles. Pour y accéder, un lien se trouve en bas de l'article.
 
 Mise à jours des chroniques (Chez les éconautes).
 
 Correction des fautes d'orthographes (Merci Loïc).
 "</string>
+    <string name="abonner">"Pour profilter de l'intégralité des articles et émissions du site @rrêt sur images, abonnez-vous."</string>
+
 </resources>
-
-

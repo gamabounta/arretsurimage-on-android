@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scroll"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="5dp" >
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/comment_B"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="B"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/comment_I"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="I"
+                android:textSize="14sp"
+                android:textStyle="italic" />
+
+            <Button
+                android:id="@+id/comment_small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="T"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/comment_large"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="T"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/comment_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="url"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/comment_quote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Citation"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/comment_texte"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="top|left"
+            android:inputType="textMultiLine|textAutoCorrect"
+            android:lines="6"
+            android:scrollHorizontally="false" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_line_widget"
+            android:paddingBottom="5dp" />
+
+        <Button
+            android:id="@+id/post_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:text="Envoyer"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+</ScrollView>

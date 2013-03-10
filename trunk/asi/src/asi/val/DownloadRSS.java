@@ -16,7 +16,7 @@
 package asi.val;
 
 import java.net.URL;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,13 +26,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import android.util.Log;
+
 public class DownloadRSS {
 
 	private URL url;
 
 	private Document dom;
 
-	private Vector<Article> articles;
+	private ArrayList<Article> articles;
 
 	public DownloadRSS(String rss_url) throws Exception {
 
@@ -41,7 +43,7 @@ public class DownloadRSS {
 		else
 			url = new URL(rss_url);
 
-		articles = new Vector<Article>();
+		articles = new ArrayList<Article>();
 	}
 
 	public void get_rss_articles() throws Exception {
@@ -55,27 +57,34 @@ public class DownloadRSS {
 			Article ar = new Article();
 			Node item = items.item(i);
 			NodeList artis = item.getChildNodes();
-			for (int j = 0; j < artis.getLength(); j++) {
-				Node arti = artis.item(j);
-				if (arti.getNodeName().equalsIgnoreCase("title"))
-					ar.setTitle(arti.getFirstChild().getNodeValue());
-				if (arti.getNodeName().equalsIgnoreCase("description"))
-					ar.setDescriptionOnRSS(arti.getFirstChild().getNodeValue());
-				if (arti.getNodeName().equalsIgnoreCase("link"))
-					ar.setUri(arti.getFirstChild().getNodeValue());
-				if (arti.getNodeName().equalsIgnoreCase("pubDate"))
-					ar.setDate(arti.getFirstChild().getNodeValue());
-				
+			try {
+				for (int j = 0; j < artis.getLength(); j++) {
+					Node arti = artis.item(j);
+					if (arti.getNodeName().equalsIgnoreCase("title"))
+						ar.setTitle(arti.getFirstChild().getNodeValue());
+					else if (arti.getNodeName().equalsIgnoreCase("description"))
+						ar.setDescriptionOnRSS(arti.getFirstChild()
+								.getNodeValue());
+					else if (arti.getNodeName().equalsIgnoreCase("link"))
+						ar.setUri(arti.getFirstChild().getNodeValue());
+					else if (arti.getNodeName().equalsIgnoreCase("pubDate"))
+						ar.setDate(arti.getFirstChild().getNodeValue());
+					else if (arti.getNodeName().equals("enclosure"))
+						ar.setImageUrl(arti.getAttributes().getNamedItem("url")
+								.getNodeValue());
+				}
+				articles.add(ar);
+			} catch (Exception e) {
+				Log.d("ASI", "bad article:" + (i + 1));
 			}
-			articles.add(ar);
 		}
 	}
 
-	public void setArticles(Vector<Article> articles) {
+	public void setArticles(ArrayList<Article> articles) {
 		this.articles = articles;
 	}
 
-	public Vector<Article> getArticles() {
+	public ArrayList<Article> getArticles() {
 		return articles;
 	}
 

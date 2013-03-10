@@ -1,5 +1,7 @@
 package asi.val;
 
+import java.util.ArrayList;
+
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -29,43 +31,49 @@ public class widget_receiver extends AppWidgetProvider {
 
 	private void defined_intent(Context context, RemoteViews views,
 			int[] appWidgetIds) {
-		// Charge les articles de tout le site
+		//Différentes catégories
+		int[] catint = new int[] { R.array.catT, R.array.catE, R.array.catD,
+				R.array.catC, R.array.catV};
 		Resources res = context.getResources();
-		String[] categorie = res.getStringArray(R.array.catT);
+		ArrayList<Categorie> cats = new ArrayList<Categorie>();
+		for (int i = 0; i < catint.length; i++) {
+			String[] categorie = res.getStringArray(catint[i]);
+			Categorie cat = new Categorie();
+			cat.setTitre(categorie[0]);
+			int img = res.getIdentifier(categorie[1],
+					"drawable", context.getPackageName());
+			cat.setImage(img);
+			cat.setUrl(categorie[2]);
+			cat.setSubCat(categorie[3]);
+			cat.setColor(categorie[4]);
+			cats.add(cat);
+		}
+		
+		// Charge les articles de tout le site
 		Intent intent = new Intent(context, ActivityListArticle.class);
 		intent.setAction("00000");
-		intent.putExtra("url", categorie[2]);
-		intent.putExtra("titre", categorie[0]);
-		intent.putExtra("color", categorie[4]);
-		intent.putExtra("image", categorie[1]);
+		intent.putExtra("categories", cats);
+		intent.putExtra("cat", cats.get(0));
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
 				intent, PendingIntent.FLAG_CANCEL_CURRENT);
-
 		views.setOnClickPendingIntent(R.id.widget2_asi, pendingIntent);
 
 		// Charge les articles des émissions
-		categorie = res.getStringArray(R.array.catE);
 		intent = new Intent(context, ActivityListArticle.class);
 		intent.setAction("11111");
-		intent.putExtra("url", categorie[2]);
-		intent.putExtra("titre", categorie[0]);
-		intent.putExtra("color", categorie[4]);
-		intent.putExtra("image", "kro_nous");
+		intent.putExtra("categories", cats);
+		intent.putExtra("cat", cats.get(1));
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		pendingIntent = PendingIntent.getActivity(context, 0, intent,
 				PendingIntent.FLAG_UPDATE_CURRENT);
 		views.setOnClickPendingIntent(R.id.widget2_emi, pendingIntent);
 
 		// Charge les articles des dossiers
-		categorie = res.getStringArray(R.array.catD);
 		intent = new Intent(context, ActivityListArticle.class);
 		intent.setAction("22222");
-		intent.putExtra("url", categorie[2]);
-		intent.putExtra("titre", categorie[0]);
-		intent.putExtra("color", categorie[4]);
-		intent.putExtra("image", categorie[1]);
+		intent.putExtra("categories", cats);
+		intent.putExtra("cat", cats.get(2));
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		pendingIntent = PendingIntent.getActivity(context, 0, intent,
 				PendingIntent.FLAG_UPDATE_CURRENT // no flags
@@ -73,21 +81,17 @@ public class widget_receiver extends AppWidgetProvider {
 		views.setOnClickPendingIntent(R.id.widget2_art, pendingIntent);
 
 		// Charge les articles des chroniques
-		categorie = res.getStringArray(R.array.catC);
 		intent = new Intent(context, ActivityListArticle.class);
 		intent.setAction("33333");
-		intent.putExtra("url", categorie[2]);
-		intent.putExtra("titre", categorie[0]);
-		intent.putExtra("color", categorie[4]);
-		intent.putExtra("image", "kro");
+		intent.putExtra("categories", cats);
+		intent.putExtra("cat", cats.get(3));
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		pendingIntent = PendingIntent.getActivity(context, 0, intent,
 				PendingIntent.FLAG_UPDATE_CURRENT // no flags
 				);
 		views.setOnClickPendingIntent(R.id.widget2_chro, pendingIntent);
 
-		// Charge les articles des vite dit
-		categorie = res.getStringArray(R.array.catV);
+		// Charge les vidéos téléchargés
 		intent = new Intent(context, ActivityVideoOnSd.class);
 		intent.setAction("44444");
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

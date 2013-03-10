@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -121,9 +122,7 @@ public class ServiceDownload extends Service {
 				dlsync = intent.getExtras().getBoolean("dlsync");
 				firstStart = false;
 			}
-			String url = intent.getExtras().getString("url");
-			Video vid = new Video(url);
-			vid.setTitle(intent.getExtras().getString("titre"));
+			Video vid = intent.getExtras().getParcelable("video");
 			DownloadVideoThread d = new DownloadVideoThread(vid);
 			this.downloading.add(d);
 			if (dlsync)
@@ -131,40 +130,40 @@ public class ServiceDownload extends Service {
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
 	private void notifiedFinishVideo(DownloadVideoThread dvid, boolean success) {
 		String desc = "";
 		String titre = dvid.get_download_video().getShortTitle_and_number();
 		if (success) {
 			desc = "Téléchargement terminé";
-			Notification notification = new Notification(
-					R.drawable.video_menu_top, titre,
-					System.currentTimeMillis());
+			NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
 			Intent intent = new Intent();
 			intent.setAction(android.content.Intent.ACTION_VIEW);
 			intent.setDataAndType(Uri.fromFile(dvid.get_download_path()),
 					"video/*");
 			PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
 					intent, 0);
-			notification.setLatestEventInfo(this, titre, desc, contentIntent);
-			notification.flags |= Notification.FLAG_AUTO_CANCEL;
-			mNM.notify(idFinish, notification);
+			notification.setSmallIcon(R.drawable.video_menu_top);
+			notification.setContentTitle(titre);
+			notification.setContentText(desc);
+			notification.setAutoCancel(false);
+			notification.setContentIntent(contentIntent);
+			mNM.notify(idFinish, notification.build());
 		} else {
 			desc = "Téléchargement intérompu";
-			Notification notification = new Notification(
-					R.drawable.telechargement_video_menu_top, titre,
-					System.currentTimeMillis());
+			NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
 			Intent i = new Intent(getApplicationContext(),
 					ServiceDownload.class);
 			i.setAction(Long.toString(System.currentTimeMillis()));
-			i.putExtra("titre", dvid.get_download_video().getTitle());
+			i.putExtra("video", dvid.get_download_video());
 			i.putExtra("dlsync", dlsync);
-			i.putExtra("url", dvid.get_download_video().getLinkURL());
 			PendingIntent contentIntent = PendingIntent.getService(this, 0, i,
 					PendingIntent.FLAG_UPDATE_CURRENT);
-			notification.setLatestEventInfo(this, titre, desc, contentIntent);
-			notification.flags |= Notification.FLAG_AUTO_CANCEL;
-			mNM.notify(idFinish, notification);
+			notification.setSmallIcon(R.drawable.telechargement_video_menu_top);
+			notification.setContentTitle(titre);
+			notification.setContentText(desc);
+			notification.setAutoCancel(true);
+			notification.setContentIntent(contentIntent);
+			mNM.notify(idFinish, notification.build());
 		}
 		idFinish++;
 	}

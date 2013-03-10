@@ -1,29 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical" android:layout_width="fill_parent"
-	android:layout_height="fill_parent" android:layout_gravity="center_vertical">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_gravity="center_vertical"
+    android:orientation="vertical" >
 
-	<EditText android:id="@+id/recherche_data"
-		android:layout_height="wrap_content" android:layout_width="fill_parent"
-		android:layout_gravity="center_horizontal" android:singleLine="true" android:inputType="text|textAutoCorrect" />
+    <EditText
+        android:id="@+id/recherche_data"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:inputType="text|textAutoCorrect"
+        android:singleLine="true" />
 
-	<TextView android:id="@+id/recherche_options" android:text="Type de contenu à rechercher :"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:textSize="16sp" android:layout_gravity="center_horizontal"
-		android:paddingLeft="2dp" android:textStyle="italic"
-		android:textColor="@color/color_white" />
+    <TextView
+        android:id="@+id/recherche_options"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingLeft="2dp"
+        android:text="Type de contenu à rechercher :"
+        android:textColor="@color/color_white"
+        android:textSize="16sp"
+        android:textStyle="italic" />
 
-	<CheckBox android:id="@+id/check_emi" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:text="Émissions"
-		android:textColor="@color/color_white" android:checked="true" />
-	<CheckBox android:id="@+id/check_doss" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:text="Dossiers et articles"
-		android:textColor="@color/color_white" android:checked="true" />
-	<CheckBox android:id="@+id/check_chro" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:text="Chroniques"
-		android:textColor="@color/color_white" android:checked="true" />
-	<CheckBox android:id="@+id/check_vite" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:text="Vite dit"
-		android:textColor="@color/color_white" android:checked="true" />
+    <CheckBox
+        android:id="@+id/check_emi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="Émissions"
+        android:textColor="@color/color_white" />
+
+    <CheckBox
+        android:id="@+id/check_doss"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="Dossiers et articles"
+        android:textColor="@color/color_white" />
+
+    <CheckBox
+        android:id="@+id/check_chro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="Chroniques"
+        android:textColor="@color/color_white" />
+
+    <CheckBox
+        android:id="@+id/check_vite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="Vite dit"
+        android:textColor="@color/color_white" />
 
 </LinearLayout>

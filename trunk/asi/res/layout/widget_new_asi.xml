@@ -78,15 +78,24 @@
                 android:layout_width="3dp"
                 android:layout_height="fill_parent"
                 android:layout_alignParentLeft="true"
+                android:layout_marginBottom="2dp"
                 android:layout_marginLeft="4dp"
                 android:layout_marginTop="2dp"
-                android:layout_marginBottom="2dp"
                 android:src="@+drawable/color_asi" />
+
+            <ImageView
+                android:id="@+id/widget_vignette"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_toRightOf="@+id/widget_color"
+                android:padding="2dp"
+                android:visibility="invisible" />
 
             <FrameLayout
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:layout_toRightOf="@+id/widget_color"
+                android:layout_toRightOf="@+id/widget_vignette"
                 android:padding="2dp" >
 
                 <TextView

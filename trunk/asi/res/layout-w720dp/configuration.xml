@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="@color/color_white" >
+
+    <com.markupartist.android.widget.ActionBar
+        android:id="@+id/actionbar"
+        style="@style/ActionBar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal" >
+
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="2" >
+
+            <TextView
+                android:id="@+id/separator"
+                android:layout_width="2dp"
+                android:layout_height="fill_parent"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="1dp"
+                android:background="@color/actionbar_background_end" />
+
+            <FrameLayout
+                android:id="@+id/container"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_toLeftOf="@+id/separator" />
+        </RelativeLayout>
+
+        <FrameLayout
+            android:id="@+id/container_little"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="3" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -16,8 +16,6 @@
 package asi.val;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Vector;
 
 import com.markupartist.android.widget.ActionBar;
 
@@ -26,276 +24,169 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.os.AsyncTask.Status;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.AdapterView.OnItemClickListener;
+import asi.val.FragmentCategorie.OnCategorieSelectedListener;
+import asi.val.FragmentListArticle.OnArticleSelectedListener;
 
-public class ActivityListArticle extends ActivityAsiBase {
-	protected ListView maListViewPerso;
+public class ActivityListArticle extends ActivityAsiBase implements
+		OnArticleSelectedListener, OnCategorieSelectedListener {
 
-	protected Vector<Article> articles;
+	private Categorie cat;
 
-	protected String color;
+	private ArrayList<Categorie> categories;
 
-	protected int image;
+	protected ArrayList<Article> articles;
 
-	protected Parcelable state;
-	
-	//public Vector<String> test;
+	private get_rss_url asyntask;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		Log.d("ASI", "ActivityListeArticles onCreate");
 		setContentView(R.layout.main);
-		// Récupération de la listview créée dans le fichier main.xml
-		maListViewPerso = (ListView) findViewById(R.id.listviewperso);
-		
-		ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
-		getMenuInflater().inflate(R.menu.list_article_menu_top, actionBar.asMenu());
-//		actionBar.setTitle(this.getIntent().getExtras().getString("titre").replaceFirst(">", ""));
-		this.addNavigationToActionBar(actionBar, this.getIntent().getExtras().getString("titre")
-				.replaceFirst(">", ""));
-		actionBar.setDisplayShowHomeEnabled(true);
-		
-		// récupération de l'image
-		image = this.getResources().getIdentifier(
-				this.getIntent().getExtras().getString("image"), "drawable",
-				this.getPackageName());
-		if (image != 0) {	
-			actionBar.addAction(actionBar.newAction(R.id.actionbar_item_home).setIcon(image));
-		}
-		
-		this.color = this.getIntent().getExtras().getString("color");
-//		text.setBackgroundColor(Color.parseColor(color));
-		
-		//On verifie si il n'y a pas la liste d'article
-		if (savedInstanceState != null)
+
+		categories = this.getIntent().getExtras()
+				.getParcelableArrayList("categories");
+		// On verifie si il n'y a pas la liste d'article
+		if (savedInstanceState != null) {
 			Log.d("ASI", "On_create_liste_article_activity_from_old");
-		else
+			cat = savedInstanceState.getParcelable("cat");
+		} else {
+			cat = this.getIntent().getExtras().getParcelable("cat");
 			this.load_content();
+		}
+		// dual-mode
+		this.loadCategorie();
+
+		ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
+		getMenuInflater().inflate(R.menu.list_article_menu_top,
+				actionBar.asMenu());
+		// actionBar.setTitle(this.getIntent().getExtras().getString("titre").replaceFirst(">",
+		// ""));
+		this.addNavigationToActionBar(actionBar, cat.getTitre());
+		actionBar.setDisplayShowHomeEnabled(true);
+
+		if (cat.getImage() != 0) {
+			actionBar.addAction(actionBar.newAction(R.id.actionbar_item_home)
+					.setIcon(cat.getImage()));
+		}
 
 	}
 
-	public void onSaveInstanceState(final Bundle b) {
-		Log.d("ASI", "liste_article save instance");
-		if (this.articles != null) {
-			ArrayList<String> save_article = new ArrayList<String>();
-			for(Article art : articles){
-				save_article.add(art.getTitle());
-				save_article.add(art.getDescription());	
-				save_article.add(art.getDate());	
-				save_article.add(art.getUri());
-				save_article.add(art.getColor());	
-			}
-			b.putStringArrayList("liste_data", save_article);
-			//state = maListViewPerso.onSaveInstanceState();
-			//b.putParcelable("etat_liste", state);
+	public void load_data() {
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager
+				.beginTransaction();
+		FragmentListArticle fragment = FragmentListArticle
+				.newInstance(articles);
+		fragmentTransaction.replace(R.id.container, fragment, "articles");
+		fragmentTransaction.commitAllowingStateLoss();
+	}
+
+	public void load_content() {
+		// On arrete l'ancien
+		if (asyntask != null && !asyntask.getStatus().equals(Status.FINISHED)) {
+			asyntask.cancel(true);
 		}
+
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager
+				.beginTransaction();
+		FragmentLoad fragment = new FragmentLoad();
+		fragmentTransaction.replace(R.id.container, fragment);
+		fragmentTransaction.commit();
+		// recuperation de l'url des flux rss
+		// String url = this.getIntent().getExtras().getString("url");
+		asyntask = new get_rss_url();
+		asyntask.execute(cat.getUrl());
+	}
+
+	public void loadCategorie() {
+		if (!this.isDualMode() || categories == null) {
+			return;
+		}
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentCategorie fragment = (FragmentCategorie) fragmentManager
+				.findFragmentByTag("categories");
+		if (fragment == null) {
+			FragmentTransaction fragmentTransaction = fragmentManager
+					.beginTransaction();
+			fragment = FragmentCategorie.newInstance(categories);
+			fragmentTransaction.add(R.id.container_little, fragment,
+					"categories");
+			fragmentTransaction.commit();
+		}
+	}
+
+	public void onSaveInstanceState(final Bundle b) {
+		Log.d("ASI", "ActivityListeArticles onSaveInstanceState");
+		if (this.articles != null) {
+			b.putParcelableArrayList("liste_data", this.articles);
+		}
+		b.putParcelable("cat", cat);
 		super.onSaveInstanceState(b);
 	}
 
 	public void onRestoreInstanceState(final Bundle b) {
-		Log.d("ASI", "onRestoreInstanceState");
+		Log.d("ASI", "ActivityListeArticles onRestoreInstanceState");
 		super.onRestoreInstanceState(b);
-		ArrayList<String> save_article = b.getStringArrayList("liste_data");
-		if (save_article != null) {
-			Log.d("ASI", "Recuperation du content de la page");
-			this.articles = new Vector<Article>();
-			for (int i =0; i < save_article.size(); i=i+5){
-				Article art = new Article();
-				art.setTitle(save_article.get(i));
-				art.setDescription(save_article.get(i+1));
-				art.setDate(save_article.get(i+2));
-				art.setUri(save_article.get(i+3));
-				art.setColor(save_article.get(i+4));
-				this.articles.add(art);
-			}
-			
-			this.load_data();
-			//state = b.getParcelable("etat_liste");
-			//maListViewPerso.onRestoreInstanceState(state);
-			
-		} else {
-			Log.d("ASI", "Rien a recuperer");
-			this.load_content();
-		}
-	}
-	
-	
-	public void load_content() {
-		// TODO Auto-generated method stub
-		// récupération de l'URL des flux RSS
-		String url = this.getIntent().getExtras().getString("url");
-		new get_rss_url().execute(url);
-		// État de la liste view
-		state = null;
-	}
-
-	public void onResume() {
-		super.onResume();
-		Log.d("ASI", "liste_article onResume");
-		if (articles != null) {
-			this.load_data();
-		}
-		//if (state != null)
-			//maListViewPerso.onRestoreInstanceState(state);
-	}
-
-	public ArrayList<HashMap<String, String>> get_listitem() {
-		ArrayList<HashMap<String, String>> listItem = new ArrayList<HashMap<String, String>>();
-
-		// chargement des articles
-		HashMap<String, String> map;
-		for (int i = 0; i < articles.size(); i++) {
-			articles.elementAt(i).setColor(color);
-			map = new HashMap<String, String>();
-			map.put("titre", articles.elementAt(i).getTitle());
-			map.put("description", articles.elementAt(i).getDescription());
-			map.put("date", articles.elementAt(i).getDate());
-			map.put("url", articles.elementAt(i).getUri());
-			map.put("color", articles.elementAt(i).getColor());
-			if (this.get_datas()
-					.contain_articles_lues(articles.elementAt(i).getUri()))
-				map.put("griser", "enabled-true");
-			else
-				map.put("griser", "enabled-false");
-			listItem.add(map);
-		}
-		return listItem;
-	}
-
-	public void load_data() {
-
-		// Création de la ArrayList qui nous permettra de remplir la listView
-		ArrayList<HashMap<String, String>> listItem = this.get_listitem();
-
-		// Création d'un SimpleAdapter qui se chargera de mettre les items
-		// présent dans notre list (listItem) dans la vue affichageitem
-		SimpleAdapter mSchedule = new SimpleAdapter(this.getBaseContext(),
-				listItem, R.layout.listview, new String[] { "griser", "color",
-						"titre", "description", "date" }, new int[] {
-						R.id.griser, R.id.color, R.id.titre, R.id.description,
-						R.id.date });
-
-		// on ajoute le binder
-		mSchedule.setViewBinder(new BindColor());
-		
-		//on sauve
-		state = maListViewPerso.onSaveInstanceState();
-
-		// On attribue à notre listView l'adapter que l'on vient de créer
-		maListViewPerso.setAdapter(mSchedule);
-
-		// Enfin on met un écouteur d'évènement sur notre listView
-		maListViewPerso.setOnItemClickListener(new OnItemClickListener() {
-			@SuppressWarnings("unchecked")
-			public void onItemClick(AdapterView<?> a, View v, int position,
-					long id) {
-				// on récupère la HashMap contenant les infos de notre item
-				// (titre, description, img)
-				HashMap<String, String> map = (HashMap<String, String>) maListViewPerso
-						.getItemAtPosition(position);
-				if (map.get("url").contains("recherche.php"))
-					ActivityListArticle.this.do_on_recherche_item(map.get("url"));
-				else
-					ActivityListArticle.this.load_page(map.get("url"),
-							map.get("titre"));
-			}
-		});
-		maListViewPerso
-				.setOnItemLongClickListener(new OnItemLongClickListener() {
-
-					@SuppressWarnings("unchecked")
-					public boolean onItemLongClick(AdapterView<?> a, View v,
-							int position, long id) {
-						// TODO Auto-generated method stub
-						HashMap<String, String> map = (HashMap<String, String>) maListViewPerso
-								.getItemAtPosition(position);
-						if (map.get("url").contains("recherche.php"))
-							ActivityListArticle.this.do_on_recherche_item(map.get("url"));
-						else
-							ActivityListArticle.this.choice_action_item(
-									map.get("url"), map.get("titre"));
-
-						return false;
-					}
-
-				});
-		maListViewPerso.onRestoreInstanceState(state);
-	}
-
-	protected void choice_action_item(final String url, final String titre) {
-		final boolean is_vue = this.get_datas().contain_articles_lues(url);
-		String texte = "Marquer comme lu";
-		if (is_vue)
-			texte = "Marquer comme non lu";
-		final CharSequence[] items = { "Visualiser", "Partager",
-				texte };
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(titre);
-		builder.setItems(items, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int item) {
-				if (items[item].equals("Visualiser")) {
-					ActivityListArticle.this.load_page(url, titre);
-				} else if (items[item].equals("Partager")) {
-					ActivityListArticle.this.partage(url, titre);
-				} else {
-					ActivityListArticle.this.marquerLecture(url,!is_vue);
-				}
-				// download_view.this.load_data();
-			}
-		});
-		AlertDialog alert = builder.create();
-		alert.show();
-	}
-	
-	protected void do_on_recherche_item(String url){
-		//à faire uniquement dans les recherches
-	}
-
-	private void partage(String url, String titre) {
-		// TODO Auto-generated method stub
-		try {
-			Intent emailIntent = new Intent(Intent.ACTION_SEND);
-			emailIntent.putExtra(Intent.EXTRA_TEXT,
-					"Un article interessant sur le site arretsurimage.net :\n"
-							+ titre + "\n" + url);
-			emailIntent.setType("text/plain");
-			// emailIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(Intent.createChooser(emailIntent,
-					"Partager cet article"));
-		} catch (Exception e) {
-			new DialogError(this, "Chargement de la page", e).show();
+		this.articles = b.getParcelableArrayList("liste_data");
+		if (this.articles == null) {
+			Log.d("lemonde", "Rien a recuperer");
+			asyntask = new get_rss_url();
+			asyntask.execute(cat.getUrl());
 		}
 	}
 
-	private void marquerLecture(String url, boolean sens) {
-		// true, marquer comme lue, false, marquer comme non lu
-		try {
-			if(sens)
-				this.get_datas().add_articles_lues(url);
-			else
-				this.get_datas().remove_articles_lues(url);
-			state = maListViewPerso.onSaveInstanceState();
-			this.load_data();
-			maListViewPerso.onRestoreInstanceState(state);
-		} catch (Exception e) {
-			new DialogError(this, "Chargement de la page", e).show();
+	protected void onDestroy() {
+		Log.d("ASI", "ActivityListeArticles onDestroy");
+		if (asyntask != null && !asyntask.getStatus().equals(Status.FINISHED)) {
+			asyntask.cancel(true);
 		}
-		// new page(main.this);
+		super.onDestroy();
 	}
-	
+
+	public void onCategorieSelected(ArrayList<Categorie> cats, int pos) {
+		//On lance une nouvelle activity si recherche
+		if (cats.get(pos).getUrl().equalsIgnoreCase("recherche")) {
+			Intent i = new Intent(this, ActivityListArticleRecherche.class);
+			i.putExtra("url", "");
+			this.startActivity(i);
+			Log.d("ASI", "load recherche");
+			return;
+		}
+		//Sinon, on mets à jour
+		this.cat = cats.get(pos);
+		ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
+		actionBar.setTitle(cat.getTitre());
+		if (cat.getImage() != 0) {
+			actionBar.addAction(actionBar.newAction(R.id.actionbar_item_home)
+					.setIcon(cat.getImage()));
+		}
+		this.articles=null;
+		this.load_content();
+	}
+
+	public void OnArticleSelected(Article art, int pos) {
+		Intent i = new Intent(this, ActivityPage.class);
+		i.putExtra("article", art);
+		i.putExtra("articles", articles);
+		i.putExtra("position", pos);
+		this.startActivity(i);
+	}
+
 	private void choixMultipleLecture() {
-		// Demande si tout marquer  ou demarquer ou annuler
-		final CharSequence[] items = { "Comme lu", "Comme non Lu",
-				"Annuler" };
+		//Si aucun article, fais rien
+		if(articles==null)
+			return;
+		// Demande si tout marquer ou demarquer ou annuler
+		final CharSequence[] items = { "Comme lu", "Comme non Lu", "Annuler" };
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Marquer tout les articles");
 		builder.setItems(items, new DialogInterface.OnClickListener() {
@@ -304,22 +195,22 @@ public class ActivityListArticle extends ActivityAsiBase {
 					ActivityListArticle.this.marquerMultipleLecture(true);
 				} else if (items[item].equals("Comme non Lu")) {
 					ActivityListArticle.this.marquerMultipleLecture(false);
-				} 
+				}
 			}
 		});
 		AlertDialog alert = builder.create();
 		alert.show();
 	}
-	
+
 	private void marquerMultipleLecture(boolean sens) {
-		for(int i =0;i<articles.size();i++){
-			if(sens)
-				this.get_datas().add_articles_lues(articles.elementAt(i).getUri());
+		for (int i = 0; i < articles.size(); i++) {
+			if (sens)
+				this.get_datas().add_articles_lues(articles.get(i).getUri());
 			else
-				this.get_datas().remove_articles_lues(articles.elementAt(i).getUri());
+				this.get_datas().remove_articles_lues(articles.get(i).getUri());
 		}
-		if(articles.size()>0)
-			this.marquerLecture(articles.elementAt(0).getUri(),sens);
+		if (articles.size() > 0)
+			this.load_data();
 	}
 
 	protected void load_page(String url, String titre) {
@@ -334,10 +225,12 @@ public class ActivityListArticle extends ActivityAsiBase {
 		// new page(main.this);
 	}
 
-	public void set_articles(Vector<Article> art) {
-		this.articles = art;
+	public void set_articles(ArrayList<Article> arts) {
+		this.articles = arts;
+		for (Article art : articles)
+			art.setColor(cat.getColor());
 	}
-	
+
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.layout.full_menu, menu);
@@ -349,10 +242,6 @@ public class ActivityListArticle extends ActivityAsiBase {
 		switch (item.getItemId()) {
 		case R.id.check_item:
 			this.choixMultipleLecture();
-			//for(int i =0;i<articles.size();i++)
-			//	this.get_datas().add_articles_lues(articles.elementAt(i).getUri());
-			//if(articles.size()>0)
-			//	this.marquerLecture(articles.elementAt(0).getUri());
 			return true;
 		case R.id.update_item:
 			this.load_content();
@@ -363,23 +252,39 @@ public class ActivityListArticle extends ActivityAsiBase {
 	}
 
 	private class get_rss_url extends AsyncTask<String, Void, String> {
-		private final DialogProgress dialog = new DialogProgress(
-				ActivityListArticle.this, this);
+		Boolean loadImage;
+		ArrayList<Article> articles;
+		ImageCache cache;
 
 		// can use UI thread here
 		protected void onPreExecute() {
-			this.dialog.setMessage("Chargement...");
-			this.dialog.show();
+			loadImage = ActivityListArticle.this.get_datas()
+					.isLoadImageEnabled();
+			cache = ActivityListArticle.this.get_datas().getImageCache();
 		}
 
 		// automatically done on worker thread (separate from UI thread)
 		protected String doInBackground(String... args) {
-			// List<String> names =
-			// Main.this.application.getDataHelper().selectAll();
 			try {
-				DownloadRSS rss = new DownloadRSS(args[0]);
-				rss.get_rss_articles();
-				ActivityListArticle.this.set_articles(rss.getArticles());
+				// Si flux RSS
+				if (args[0].contains(".rss")) {
+					DownloadRSS rss = new DownloadRSS(args[0]);
+					rss.get_rss_articles();
+					articles = rss.getArticles();
+				} else {
+					// Sinon chargement article en mode recherche
+					PageRecherche re = new PageRecherche(args[0]);
+					articles = re.getArticles();
+				}
+				// Si image activée
+				if (loadImage) {
+					cache.clearMemoryCache();
+					for (Article art : articles) {
+						cache.addBitmapToCache(art.getImageUrl());
+						if (this.isCancelled())
+							return "stop";
+					}
+				}
 			} catch (Exception e) {
 				String error = e.toString() + "\n" + e.getStackTrace()[0]
 						+ "\n" + e.getStackTrace()[1];
@@ -389,20 +294,12 @@ public class ActivityListArticle extends ActivityAsiBase {
 		}
 
 		protected void onPostExecute(String error) {
-			if (this.dialog.isShowing()) {
-				try {
-					this.dialog.dismiss();
-				} catch (Exception e) {
-					Log.e("ASI", "Erreur d'arrêt de la boîte de dialogue");
-				}
-			}
-			if (error == null)
+			if (error == null) {
+				ActivityListArticle.this.set_articles(articles);
 				ActivityListArticle.this.load_data();
-			else {
-				//new erreur_dialog(liste_articles.this, "Chargement des articles", error).show();
+			} else {
 				ActivityListArticle.this.erreur_loading(error);
 			}
-			// Main.this.output.setText(result);
 		}
 	}
 

@@ -23,9 +23,11 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
-public class Video {
+public class Video implements Parcelable {
 
 	private String dailymotion;
 	 
@@ -36,14 +38,18 @@ public class Video {
 	private String image;
 	
 	public Video(String url) {
-		this.set_dailymotion_url(url);
+		this.dailymotion = "";
+		this.title = "ASI";
 		this.image="";
+		this.number = 0;
+		this.set_dailymotion_url(url);
 	}
 
 	public Video() {
 		this.dailymotion = "";
 		this.title = "ASI";
 		this.image="";
+		this.number = 0;
 	}
 
 	public String parse_to_url(String asi) {
@@ -109,25 +115,29 @@ public class Video {
 	}
 
 	public String get_download_url() throws Exception {
-		StringBuffer sb = new StringBuffer("");
+		//StringBuffer sb = new StringBuffer("");
+		String link = "";
 		BufferedReader in = null;
 		try {
-			URL url = new URL(dailymotion);
+			URL url = new URL(dailymotion.replace("iphone", "www"));
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setDoOutput(true);
 
 			in = new BufferedReader(
 					new InputStreamReader(conn.getInputStream()));
 			String ligneCodeHTML;
-			Pattern p = Pattern
-					.compile(".*type=\"video/x-m4v\" href=\"(.*)\" src=.*");
-
-			// boolean data = false;
+			//Pattern p = Pattern.compile(".*type=\"video/x-m4v\" href=\"(.*)\" src=.*");
+			Pattern p = Pattern.compile(".*video_url.*?(http.*?)%22.*");
+			// video_url%22%3A%22http%253A%252F%252Fwww.dailymotion.com%252Fcdn%252FH264-512x384%252Fvideo%252Fxx0vzt.mp4%253Fauth%253D1359695428-b214027f38c08f78662c9fd2dcb555ba%22
 			while ((ligneCodeHTML = in.readLine()) != null) {
-
 				Matcher m = p.matcher(ligneCodeHTML);
-				if (m.matches())
-					sb.append(m.group(1));
+				if (m.matches()){
+					link = m.group(1);
+					link = link.replaceAll("%253A", ":");
+					link = link.replaceAll("%252F", "/");
+					link = link.replaceAll("%253F", "?");
+					link = link.replaceAll("%253D", "=");
+				}
 			}
 			conn.disconnect();
 		} catch (java.net.ProtocolException e) {
@@ -143,8 +153,11 @@ public class Video {
 				}
 			}
 		}
-		// On retourne le stringBuffer
-		return sb.toString();
+		// On retourne le string si non vide
+		if(link.equals(""))
+			throw new StopException("Impossible de récupérer le lien de la vidéo");
+		Log.d("ASI","Video = "+link);
+		return link;
 	}
 
 	public void set_dailymotion_url(String url) {
@@ -173,7 +186,10 @@ public class Video {
 	}
 	
 	public void setTitle(String page_title) {
-		this.title = page_title;
+		if(!page_title.equals(""))
+			this.title = page_title;
+		else
+			this.title ="ASI";
 	}
 
 	public String getTitle() {
@@ -196,5 +212,34 @@ public class Video {
 			s = title.substring(0, 10)+" ... "+title.substring(title.length()-10)+" - "+number;
 		}
 		return(s);
+	}
+	
+	
+	public static final Parcelable.Creator<Video> CREATOR = new Parcelable.Creator<Video>() {
+		public Video createFromParcel(Parcel in) {
+			return new Video(in);
+		}
+
+		public Video[] newArray(int size) {
+			return new Video[size];
+		}
+	};
+
+	private Video(Parcel in) {
+		this.dailymotion = in.readString();
+		this.title = in.readString();
+		this.number = in.readInt();
+		this.image = in.readString();
+	}
+
+	public int describeContents() {
+		return 0;
+	}
+
+	public void writeToParcel(Parcel out, int arg1) {
+		out.writeString(this.dailymotion);
+		out.writeString(this.title);
+		out.writeInt(this.number);
+		out.writeString(this.image);
 	}
 }

@@ -1,7 +1,6 @@
 package asi.val;
 
 import java.util.ArrayList;
-import java.util.Vector;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -9,6 +8,8 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
@@ -27,7 +28,7 @@ public class widget_receiver_emission extends AppWidgetProvider {
 
 	public static final String UPDATE_WIDGET = "asi.val.action.UPDATE_WIDGET";
 
-	private Vector<Article> articles;
+	private ArrayList<Article> articles;
 
 	private String url = "http://www.arretsurimages.net/emissions.rss";
 
@@ -48,6 +49,12 @@ public class widget_receiver_emission extends AppWidgetProvider {
 			views.setTextViewText(R.id.widget_message2, "");
 			views.setViewVisibility(R.id.widget_check_image1, View.INVISIBLE);
 			views.setViewVisibility(R.id.widget_check_image2, View.INVISIBLE);
+			views.setViewVisibility(R.id.widget_vignette1, View.INVISIBLE);
+			views.setImageViewBitmap(R.id.widget_vignette1, BitmapFactory
+					.decodeResource(context.getResources(), R.drawable.vide));
+			views.setViewVisibility(R.id.widget_vignette2, View.INVISIBLE);
+			views.setImageViewBitmap(R.id.widget_vignette2, BitmapFactory
+					.decodeResource(context.getResources(), R.drawable.vide));
 			appWidgetManager.updateAppWidget(appWidgetId, views);
 
 			try {
@@ -85,9 +92,8 @@ public class widget_receiver_emission extends AppWidgetProvider {
 					Toast.LENGTH_SHORT).show();
 			for (Video vid : videos) {
 				Intent i = new Intent(context, ServiceDownload.class);
-				i.putExtra("titre", vid.getTitle());
+				i.putExtra("video", vid);
 				i.putExtra("dlsync", this.get_datas(context).isDlSync());
-				i.putExtra("url", vid.getLinkURL());
 				context.startService(i);
 			}
 		} else {
@@ -98,7 +104,7 @@ public class widget_receiver_emission extends AppWidgetProvider {
 		}
 	}
 
-	public void updateArticles(Vector<Article> articlesBackground,
+	public void updateArticles(ArrayList<Article> articlesBackground,
 			Context context, int[] appWidgetIds) {
 		RemoteViews views = new RemoteViews(context.getPackageName(),
 				R.layout.widget_emi_asi);
@@ -132,7 +138,7 @@ public class widget_receiver_emission extends AppWidgetProvider {
 				Log.e("ASI", "Error widget " + error);
 			} finally {
 				if (articles == null) {
-					articles = new Vector<Article>();
+					articles = new ArrayList<Article>();
 				}
 				if (i == 0) {
 					this.get_datas(context).save_widget_emission(articles);
@@ -181,33 +187,63 @@ public class widget_receiver_emission extends AppWidgetProvider {
 
 	private void defined_first_article(RemoteViews views, Context context) {
 		if (articles.size() >= 1) {
-			views.setTextViewText(R.id.widget_message1, articles.elementAt(0)
+			views.setTextViewText(R.id.widget_message1, articles.get(0)
 					.getTitle());
 			if (this.get_datas(context).contain_articles_lues(
-					articles.elementAt(0).getUri()))
+					articles.get(0).getUri()))
 				views.setViewVisibility(R.id.widget_check_image1, View.VISIBLE);
 			else
 				views.setViewVisibility(R.id.widget_check_image1,
 						View.INVISIBLE);
+			Bitmap bit = this.get_datas(context).getImageCache()
+					.getBitmapForFile(articles.get(0).getImageUrl());
+			if (bit != null) {
+				Log.d("ASI", "Widget View image emi 1");
+				views.setViewVisibility(R.id.widget_vignette1, View.VISIBLE);
+				views.setImageViewBitmap(R.id.widget_vignette1, bit);
+			} else {
+				views.setViewVisibility(R.id.widget_vignette1, View.INVISIBLE);
+				views.setImageViewBitmap(R.id.widget_vignette1,
+						BitmapFactory.decodeResource(context.getResources(),
+								R.drawable.vide));
+			}
 		} else {
 			views.setTextViewText(R.id.widget_message1, "Aucun article");
 			views.setViewVisibility(R.id.widget_check_image1, View.INVISIBLE);
+			views.setViewVisibility(R.id.widget_vignette1, View.INVISIBLE);
+			views.setImageViewBitmap(R.id.widget_vignette1, BitmapFactory
+					.decodeResource(context.getResources(), R.drawable.vide));
 		}
 	}
 
 	private void defined_second_article(RemoteViews views, Context context) {
 		if (articles.size() >= 2) {
-			views.setTextViewText(R.id.widget_message2, articles.elementAt(1)
+			views.setTextViewText(R.id.widget_message2, articles.get(1)
 					.getTitle());
 			if (this.get_datas(context).contain_articles_lues(
-					articles.elementAt(1).getUri()))
+					articles.get(1).getUri()))
 				views.setViewVisibility(R.id.widget_check_image2, View.VISIBLE);
 			else
 				views.setViewVisibility(R.id.widget_check_image2,
 						View.INVISIBLE);
+			Bitmap bit = this.get_datas(context).getImageCache()
+					.getBitmapForFile(articles.get(1).getImageUrl());
+			if (bit != null) {
+				Log.d("ASI", "Widget View image emi 2");
+				views.setViewVisibility(R.id.widget_vignette2, View.VISIBLE);
+				views.setImageViewBitmap(R.id.widget_vignette2, bit);
+			} else {
+				views.setViewVisibility(R.id.widget_vignette2, View.INVISIBLE);
+				views.setImageViewBitmap(R.id.widget_vignette2,
+						BitmapFactory.decodeResource(context.getResources(),
+								R.drawable.vide));
+			}
 		} else {
 			views.setTextViewText(R.id.widget_message2, "Aucun article");
 			views.setViewVisibility(R.id.widget_check_image2, View.INVISIBLE);
+			views.setViewVisibility(R.id.widget_vignette2, View.INVISIBLE);
+			views.setImageViewBitmap(R.id.widget_vignette2, BitmapFactory
+					.decodeResource(context.getResources(), R.drawable.vide));
 		}
 	}
 
@@ -228,19 +264,22 @@ public class widget_receiver_emission extends AppWidgetProvider {
 			intent = new Intent(context, ActivityPage.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			if (articles.size() > 0) {
-				intent.putExtra("url", articles.elementAt(0).getUri());
-				intent.putExtra("titre", articles.elementAt(0).getTitle());
+				intent.putExtra("articles", articles);
+				intent.putExtra("article", articles.get(0));
 				context.startActivity(intent);
+				this.get_datas(context).add_articles_lues(
+						articles.get(0).getUri());
 			}
 			RemoteViews views = new RemoteViews(context.getPackageName(),
 					R.layout.widget_emi_asi);
-			// On met l'article courant lu et on rend visible l'image check
-			this.defined_first_article(views, context);
-			views.setViewVisibility(R.id.widget_check_image1, View.VISIBLE);
-
 			ComponentName thisWidget = new ComponentName(context,
 					widget_receiver_emission.class);
 			AppWidgetManager manager = AppWidgetManager.getInstance(context);
+
+			// On met l'article courant lu et on rend visible l'image check
+			this.defined_first_article(views, context);
+			this.defined_second_article(views, context);
+
 			// On redéfinit les actions sur les éléments du widget
 			this.defined_intent(context, views,
 					manager.getAppWidgetIds(thisWidget));
@@ -250,19 +289,22 @@ public class widget_receiver_emission extends AppWidgetProvider {
 			intent = new Intent(context, ActivityPage.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			if (articles.size() > 1) {
-				intent.putExtra("url", articles.elementAt(1).getUri());
-				intent.putExtra("titre", articles.elementAt(1).getTitle());
+				intent.putExtra("articles", articles);
+				intent.putExtra("article", articles.get(1));
 				context.startActivity(intent);
+				this.get_datas(context).add_articles_lues(
+						articles.get(1).getUri());
 			}
 			RemoteViews views = new RemoteViews(context.getPackageName(),
 					R.layout.widget_emi_asi);
-			// On met l'article courant lu et on rend visible l'image check
-			this.defined_first_article(views, context);
-			views.setViewVisibility(R.id.widget_check_image2, View.VISIBLE);
-
 			ComponentName thisWidget = new ComponentName(context,
 					widget_receiver_emission.class);
 			AppWidgetManager manager = AppWidgetManager.getInstance(context);
+
+			// On met l'article courant lu et on rend visible l'image check
+			this.defined_first_article(views, context);
+			this.defined_second_article(views, context);
+
 			// On redéfinit les actions sur les éléments du widget
 			this.defined_intent(context, views,
 					manager.getAppWidgetIds(thisWidget));
@@ -281,6 +323,10 @@ public class widget_receiver_emission extends AppWidgetProvider {
 						"Récupération des liens vidéos");
 				views.setViewVisibility(R.id.widget_check_image1,
 						View.INVISIBLE);
+				views.setViewVisibility(R.id.widget_vignette1, View.INVISIBLE);
+				views.setImageViewBitmap(R.id.widget_vignette1,
+						BitmapFactory.decodeResource(context.getResources(),
+								R.drawable.vide));
 				GetEmissionVideo emission = new GetEmissionVideo(context,
 						manager.getAppWidgetIds(thisWidget), articles.get(0)
 								.getTitle());
@@ -306,6 +352,10 @@ public class widget_receiver_emission extends AppWidgetProvider {
 						"Récupération des liens vidéos");
 				views.setViewVisibility(R.id.widget_check_image2,
 						View.INVISIBLE);
+				views.setViewVisibility(R.id.widget_vignette2, View.INVISIBLE);
+				views.setImageViewBitmap(R.id.widget_vignette2,
+						BitmapFactory.decodeResource(context.getResources(),
+								R.drawable.vide));
 				GetEmissionVideo emission = new GetEmissionVideo(context,
 						manager.getAppWidgetIds(thisWidget), articles.get(1)
 								.getTitle());
@@ -350,20 +400,23 @@ public class widget_receiver_emission extends AppWidgetProvider {
 
 	private class GetArticleWidget extends AsyncTask<String, Void, Void> {
 
-		private Vector<Article> articlesBackground;
+		private ArrayList<Article> articlesBackground;
 
 		private Context context;
 
 		private int[] appWidgetIds;
 
+		private SharedDatas shared;
+
 		public GetArticleWidget(Context c, int[] Ids) {
+			shared = widget_receiver_emission.this.get_datas(c);
 			context = c;
 			appWidgetIds = Ids;
 		}
 
 		// can use UI thread here
 		protected void onPreExecute() {
-			articlesBackground = new Vector<Article>();
+			articlesBackground = new ArrayList<Article>();
 		}
 
 		// automatically done on worker thread (separate from UI thread)
@@ -372,7 +425,14 @@ public class widget_receiver_emission extends AppWidgetProvider {
 				DownloadRSS d = new DownloadRSS(args[0]);
 				d.get_rss_articles();
 				articlesBackground = d.getArticles();
-				Log.d("ASI", "widget telechargement termine");
+				Log.d("ASI", "widget emi telechargement termine");
+				// on ne chargent les images que les 2 derniers
+				shared.getImageCache().clearMemoryCache();
+				for (int i = 0; i < 2; i++) {
+					if (i < articlesBackground.size())
+						shared.getImageCache().addBitmapToCache(
+								articlesBackground.get(i).getImageUrl());
+				}
 
 			} catch (Exception e) {
 				String error = e.toString() + "\n" + e.getStackTrace()[0]
@@ -416,7 +476,7 @@ public class widget_receiver_emission extends AppWidgetProvider {
 				PageLoading page_d = new PageLoading(args[0]);
 				page_d.getContent();
 				videos = page_d.getVideos();
-				Log.d("ASI", "widget emission recupérer");
+				Log.d("ASI", "widget emission video recupérer");
 
 			} catch (Exception e) {
 				String error = e.toString() + "\n" + e.getStackTrace()[0]

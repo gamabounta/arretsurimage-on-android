@@ -16,29 +16,22 @@
 package asi.val;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import com.markupartist.android.widget.ActionBar;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.AdapterView.OnItemClickListener;
+import asi.val.FragmentCategorie.OnCategorieSelectedListener;
 
-public class ActivityCategorie extends ActivityAsiBase {
-	private ListView maListViewPerso;
-
-	private boolean gratuit;
+public class ActivityCategorie extends ActivityAsiBase implements
+		OnCategorieSelectedListener {
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,26 +41,37 @@ public class ActivityCategorie extends ActivityAsiBase {
 		ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
 		getMenuInflater()
 				.inflate(R.menu.categorie_menu_top, actionBar.asMenu());
-		//this.addNavigationToActionBar(actionBar, "Choix des catégories");
-		// actionBar.setTitle("Choix des catégories");
-
 		actionBar.setDisplayShowHomeEnabled(true);
 
-		// Récupération de la listview créée dans le fichier main.xml
-		maListViewPerso = (ListView) findViewById(R.id.listviewperso);
-
-		gratuit = this.getIntent().getExtras().getBoolean("gratuit");
-
-		this.load_data();
+		ArrayList<Categorie> cats = this.getCategories(this.getIntent()
+				.getExtras().getBoolean("gratuit"));
+		
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager
+				.beginTransaction();
+		if (savedInstanceState != null) {
+			Fragment fragmentOld = fragmentManager
+					.findFragmentById(R.id.container_little);
+			if (fragmentOld != null)
+				fragmentTransaction.remove(fragmentOld);
+			Fragment fragmentOld2 = fragmentManager
+					.findFragmentById(R.id.container);
+			if (fragmentOld2 != null)
+				fragmentTransaction.remove(fragmentOld2);
+		}
+		FragmentCategorie fragment = FragmentCategorie.newInstance(cats);
+		if (this.isDualMode())
+			fragmentTransaction.add(R.id.container_little, fragment,
+					"categories");
+		else {
+			fragmentTransaction.replace(R.id.container, fragment, "categories");
+		}
+		fragmentTransaction.commit();
+		fragmentManager.popBackStackImmediate();
 
 	}
 
-	private void load_data() {
-
-		// Création de la ArrayList qui nous permettra de remplir la listView
-		ArrayList<HashMap<String, String>> listItem = new ArrayList<HashMap<String, String>>();
-		HashMap<String, String> map;
-		// Chargement des catégories
+	private ArrayList<Categorie> getCategories(boolean gratuit) {
 		int[] liste = null;
 		if (!gratuit) {
 			liste = new int[] { R.array.catT, R.array.catE, R.array.catD,
@@ -76,139 +80,83 @@ public class ActivityCategorie extends ActivityAsiBase {
 			liste = new int[] { R.array.catT, R.array.catE, R.array.catD,
 					R.array.catC, R.array.catG, R.array.catR };
 		}
-
+		ArrayList<Categorie> cats = new ArrayList<Categorie>();
 		Resources res = getResources();
 		for (int i = 0; i < liste.length; i++) {
 			String[] categorie = res.getStringArray(liste[i]);
-			map = new HashMap<String, String>();
-			map.put("titre", categorie[0]);
-			map.put("image", categorie[1]);
-			map.put("url", categorie[2]);
-			map.put("subcat", categorie[3]);
-			map.put("color", categorie[4]);
-			listItem.add(map);
+			Categorie cat = new Categorie();
+			cat.setTitre(categorie[0]);
+			int img = res.getIdentifier(categorie[1],
+					"drawable", this.getPackageName());
+			cat.setImage(img);
+			cat.setUrl(categorie[2]);
+			cat.setSubCat(categorie[3]);
+			cat.setColor(categorie[4]);
+			cats.add(cat);
 		}
+		return (cats);
 
-		// Création d'un SimpleAdapter qui se chargera de mettre les items
-		// présents dans notre list (listItem) dans la vue affichageitem
-		SimpleAdapter mSchedule = new SimpleAdapter(this.getBaseContext(),
-				listItem, R.layout.categorie_listes, new String[] { "color",
-						"titre" }, new int[] { R.id.cat_color, R.id.cat_title });
-		// on ajoute le viewbinder
-		mSchedule.setViewBinder(new BindColor());
-
-		// On attribue à notre listView l'adapter que l'on vient de créer
-		maListViewPerso.setAdapter(mSchedule);
-
-		// Enfin on met un écouteur d'évènement sur notre listView
-		maListViewPerso.setOnItemClickListener(new OnItemClickListener() {
-			@SuppressWarnings("unchecked")
-			public void onItemClick(AdapterView<?> a, View v, int position,
-					long id) {
-				// on récupère la HashMap contenant les infos de notre item
-				// (titre, description, img)
-				HashMap<String, String> map = (HashMap<String, String>) maListViewPerso
-						.getItemAtPosition(position);
-				if (map.get("url").equalsIgnoreCase("recherche"))
-					ActivityCategorie.this.do_recherche(map.get("titre"),
-							map.get("color"), map.get("image"));
-				else if (map.get("subcat").equalsIgnoreCase("no"))
-					ActivityCategorie.this.load_page(map.get("url"),
-							map.get("titre"), map.get("color"),
-							map.get("image"));
-				else
-					ActivityCategorie.this.do_on_long_clic(map.get("subcat"),
-							map.get("titre"), map.get("color"));
+	}
+	
+	private ArrayList<Categorie> getSubCategories(Categorie cat) {
+		String subid = cat.getSubCat();
+		if(subid.equals(""))
+			return null;
+		
+		Resources res = getResources();
+		int id = res.getIdentifier(subid, "array", this.getPackageName());
+		ArrayList<Categorie> cats = new ArrayList<Categorie>();
+		
+		String[] subcategorie = res.getStringArray(id);
+		for (int i = 0; i < subcategorie.length; i += 3) {
+			Categorie subcat = new Categorie();
+			subcat.setTitre(subcategorie[i]);
+			int img = res.getIdentifier(subcategorie[i + 2],
+					"drawable", this.getPackageName());
+			subcat.setImage(img);
+			if(subcategorie[i + 1].contains("rss"))
+				subcat.setUrl(subcategorie[i + 1]);
+			else
+				subcat.setSubCat(subcategorie[i + 1]);
+			subcat.setColor(cat.getColor());
+			cats.add(subcat);
+		}
+		return cats;
+	}
+	
+	public void onCategorieSelected(ArrayList<Categorie> cats, int pos) {
+		Categorie cat = cats.get(pos);
+		ArrayList<Categorie> subcats = this.getSubCategories(cat);
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		if(subcats!=null){
+			//On charge la nouvelle list dans un Fragment
+			fragmentManager.popBackStackImmediate();
+			FragmentTransaction fragmentTransaction = fragmentManager
+					.beginTransaction();
+			FragmentCategorie fragment = FragmentCategorie.newInstance(subcats);
+			fragmentTransaction.replace(R.id.container, fragment, "subcategories");
+			fragmentTransaction.addToBackStack("sub");
+			fragmentTransaction.commit();
+		}else{
+			if(cat.getUrl().equalsIgnoreCase("recherche")){
+				Intent i = new Intent(this, ActivityListArticleRecherche.class);
+				i.putExtra("url", "");
+				this.startActivity(i);
+				Log.d("ASI","load recherche");
+			}else{
+				//ListArticle Activity
+				Intent i = new Intent(this, ActivityListArticle.class);
+				i.putExtra("cat", cat);
+				i.putExtra("categories", cats);
+				this.startActivity(i);
+				Log.d("ASI","load listArticle");
 			}
-		});
+		}
 	}
 
 	protected void do_recherche(String titre, String color, String image) {
 		new DialogRecherche(this, titre, color, image).show();
 
-	}
-
-	private void load_page(String url, String titre, String color, String image) {
-		try {
-			Intent i = new Intent(this, ActivityListArticle.class);
-			i.putExtra("url", url);
-			i.putExtra("titre", titre);
-			i.putExtra("color", color);
-			i.putExtra("image", image);
-			this.startActivity(i);
-
-		} catch (Exception e) {
-			new DialogError(this, "Chargement de la liste des articles", e)
-					.show();
-		}
-	}
-
-	private void do_on_long_clic(String subid, String titre, String color) {
-		Resources res = getResources();
-		// int id = res.getIdentifier(subid, null, null);
-		Log.d("ASI", subid);
-		Log.d("ASI", this.getPackageName());
-		int id = res.getIdentifier(subid, "array", this.getPackageName());
-		final String color_fin = color;
-
-		ArrayList<HashMap<String, String>> subcatitem = new ArrayList<HashMap<String, String>>();
-		HashMap<String, String> map;
-
-		final String[] subcategorie = res.getStringArray(id);
-		for (int i = 0; i < subcategorie.length; i += 3) {
-			map = new HashMap<String, String>();
-			map.put("titre", subcategorie[i]);
-			map.put("logo",
-					"png-"
-							+ res.getIdentifier(subcategorie[i + 2],
-									"drawable", this.getPackageName()));
-			// map.put("logo", subcategorie[i+2]);
-			map.put("url", subcategorie[i + 1]);
-			subcatitem.add(map);
-		}
-
-		SimpleAdapter mSchedule2 = new SimpleAdapter(this.getBaseContext(),
-				subcatitem, R.layout.subcategorie, new String[] { "logo",
-						"titre" }, new int[] { R.id.subcat_image,
-						R.id.subcat_title });
-		mSchedule2.setViewBinder(new BindImage());
-		// final CharSequence[] subcate = new CharSequence[subcategorie.length /
-		// 3];
-		// for (int i = 0; i < subcategorie.length; i += 3) {
-		// subcate[(i / 3)] = subcategorie[i];
-		// }
-		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(titre.replace(">", ""));
-
-		builder.setAdapter(mSchedule2, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int item) {
-				if(	subcategorie[item * 3 + 1].contains("rss")){
-					ActivityCategorie.this.load_page(subcategorie[item * 3 + 1],
-							subcategorie[item * 3], color_fin,
-							subcategorie[item * 3 + 2]);
-				}else{
-					ActivityCategorie.this.do_on_long_clic(subcategorie[item * 3 + 1], subcategorie[item * 3], color_fin);
-				}
-			}
-		});
-
-		AlertDialog alert = builder.create();
-		alert.show();
-	}
-
-	// public void onBackPressed(){
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-			if (this.get_datas().isAutologin()) {
-				// this.closed_application();
-				this.finish();
-				return true;
-			}
-			// main.group.is_autologin(false);
-			// return true;
-		}
-
-		return super.onKeyDown(keyCode, event);
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {

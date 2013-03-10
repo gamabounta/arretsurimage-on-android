@@ -17,17 +17,20 @@ package asi.val;
 
 import com.markupartist.android.widget.ActionBar;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
 
-public class ActivityAsiBase extends Activity {
+public class ActivityAsiBase extends FragmentActivity {
 
 	protected SharedDatas datas;
 	
@@ -61,32 +64,24 @@ public class ActivityAsiBase extends Activity {
 	public void load_content() {
 
 	}
+	
+	protected boolean isDualMode(){
+		return(this.findViewById(R.id.container_little)!=null);
+	}
+	
+	public void selfReload(View view){
+		ActivityAsiBase.this.load_content();
+	}
 
 	protected void erreur_loading(String error) {
 		Log.e("ASI", error);
-		if(hasFocus==false){
-			Log.d("ASI","Windows that have not focus, do nothing");
-			this.finish();
-			return;
-		}
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(
-				"Une erreur réseau s'est produite lors du chargement.")
-				.setCancelable(false)
-				.setPositiveButton("Réessayer",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								ActivityAsiBase.this.load_content();
-							}
-						})
-				.setNegativeButton("Annuler",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								ActivityAsiBase.this.finish();
-							}
-						});
-		AlertDialog quitte = builder.create();
-		quitte.show();
+		Log.e("lemonde", error);
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager
+				.beginTransaction();
+		FragmentReload fragment = FragmentReload.newInstance(error);
+		fragmentTransaction.replace(R.id.container, fragment);
+		fragmentTransaction.commitAllowingStateLoss();
 	}
 
 	public void addNavigationToActionBar(ActionBar actionBar, String title) {
@@ -120,7 +115,7 @@ public class ActivityAsiBase extends Activity {
 			startActivity(i);
 			return true;
 		case R.id.itemback:
-			this.finish();
+			this.onBackPressed();
 			return true;
 		case R.id.video_item:
 			i = new Intent(this, ActivityVideoOnSd.class);

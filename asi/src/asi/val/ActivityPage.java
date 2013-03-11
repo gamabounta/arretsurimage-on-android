@@ -243,6 +243,7 @@ public class ActivityPage extends ActivityAsiBase implements
 		this.article = art;
 		ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
 		actionBar.setTitle(article.getTitle());
+		this.addNavigationToActionBar(actionBar, article.getTitle());
 		this.pagedata=null;
 		this.forum_link=null;
 		this.videos=null;

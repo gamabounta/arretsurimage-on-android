@@ -12,11 +12,11 @@
         android:layout_height="wrap_content" />
 
     <GridView
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/maGridView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:columnWidth="240dp"
+        android:layout_marginTop="5dp"
         android:gravity="center"
         android:numColumns="2"
         android:verticalSpacing="5dp"

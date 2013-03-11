@@ -165,6 +165,7 @@ public class ActivityListArticle extends ActivityAsiBase implements
 		this.cat = cats.get(pos);
 		ActionBar actionBar = (ActionBar) findViewById(R.id.actionbar);
 		actionBar.setTitle(cat.getTitre());
+		this.addNavigationToActionBar(actionBar, cat.getTitre());
 		if (cat.getImage() != 0) {
 			actionBar.addAction(actionBar.newAction(R.id.actionbar_item_home)
 					.setIcon(cat.getImage()));

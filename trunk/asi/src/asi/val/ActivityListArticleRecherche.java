@@ -11,6 +11,8 @@ import android.os.AsyncTask.Status;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import asi.val.FragmentListArticle.OnArticleSelectedListener;
@@ -186,6 +188,13 @@ public class ActivityListArticleRecherche extends ActivityAsiBase implements
 			this.startActivity(i);
 		}
 	}
+	
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.layout.full_menu, menu);
+		return true;
+	}
+	
 
 	private class get_recherche_url extends AsyncTask<String, Void, String> {
 		Boolean loadImage;

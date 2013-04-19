@@ -15,12 +15,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
 public class ActivityConfiguration extends ActivityAsiBase implements
-		OnConfigSelectedListener,OnAuthenfiedListener {
+		OnConfigSelectedListener, OnAuthenfiedListener {
 
 	private int[] liste = new int[] { R.array.conf_login,
-			R.array.conf_autologin, R.array.conf_view_image,
-			R.array.conf_view_desc, R.array.conf_view_date,
-			R.array.conf_zoom_enable, R.array.conf_zoom_level };
+			R.array.conf_autologin, R.array.conf_dlsync,
+			R.array.conf_view_image, R.array.conf_view_desc,
+			R.array.conf_view_date, R.array.conf_zoom_enable,
+			R.array.conf_zoom_level };
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -89,6 +90,9 @@ public class ActivityConfiguration extends ActivityAsiBase implements
 		case R.array.conf_zoom_level:
 			this.zoomLevel(title);
 			return;
+		case R.array.conf_dlsync:
+			this.setPreferenceDownload(title);
+			return;
 		default:
 			// Si aucun, simplement boolean
 			this.setPreferenceBoolean(title, config[0]);
@@ -116,6 +120,25 @@ public class ActivityConfiguration extends ActivityAsiBase implements
 		alert.show();
 	}
 
+	private void setPreferenceDownload(String title) {
+		final CharSequence[] items = { "Série", "Parallèle" };
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(title);
+		int posi = 0;
+		if (this.get_datas().isDlSync())
+			posi = 1;
+		builder.setSingleChoiceItems(items, posi,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int item) {
+						boolean check = items[item].equals("Parallèle");
+						ActivityConfiguration.this.get_datas().setDlSync(check);
+						dialog.dismiss();
+					}
+				});
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+	
 	private void zoomLevel(String title) {
 		final CharSequence[] items = new CharSequence[8];
 		int zoom = 80;
@@ -151,7 +174,7 @@ public class ActivityConfiguration extends ActivityAsiBase implements
 	}
 
 	public void OnAuthenfied() {
-		//On ne fait rien
+		// On ne fait rien
 	}
 
 }

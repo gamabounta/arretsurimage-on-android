@@ -106,7 +106,7 @@ public class ImageCache {
 
 			// Ajout au cache
 			this.currentCacheFile.add(current);
-			this.currentCacheMemory.put(url, image);
+			this.currentCacheMemory.put(url, scale);
 			// on verifie la taille
 			this.checkMemoryUsage();
 

@@ -57,13 +57,13 @@ public class PageLoading {
 		forum_link = null;
 		try {
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
 			conn.setDoOutput(true);
 
 			// Attach cookies from previous login/user creation so we can use
 			// the previous session
-
+			conn.setRequestProperty("User-Agent", SharedDatas.shared.getUserAgent());
 			conn.setRequestProperty("Cookie", cookies);
+			
 			in = new BufferedReader(
 					new InputStreamReader(conn.getInputStream()));
 

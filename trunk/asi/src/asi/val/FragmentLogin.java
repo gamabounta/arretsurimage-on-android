@@ -157,6 +157,7 @@ public class FragmentLogin extends FragmentAsiBase implements OnClickListener {
 						.openConnection();
 				connection.setDoOutput(true);
 				connection.setInstanceFollowRedirects(false);
+				connection.setRequestProperty("User-Agent", SharedDatas.shared.getUserAgent());
 
 				// On écrit les données via l'objet OutputStream
 				out = new OutputStreamWriter(connection.getOutputStream());

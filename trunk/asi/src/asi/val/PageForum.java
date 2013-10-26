@@ -50,6 +50,7 @@ public class PageForum {
 			conn.setDoOutput(true);
 
 			conn.setRequestProperty("Cookie", SharedDatas.shared.getCookies());
+			conn.setRequestProperty("User-Agent", SharedDatas.shared.getUserAgent());
 
 			// on lit la réponse
 			in = new BufferedReader(

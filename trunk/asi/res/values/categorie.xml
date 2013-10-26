@@ -72,6 +72,9 @@
 		<item>"@ux sources"</item>
 		<item>http://www.arretsurimages.net/rss/emissions-src.rss</item>
 		<item>pola_auxsources</item>
+		<item>"14H42"</item>
+		<item>http://www.arretsurimages.net/rss/emissions-14h42.rss</item>
+		<item>pola_14h42</item>		
 	</string-array>
 	<string-array name="subcatC">
 		<item>"Toutes les chroniques"</item>

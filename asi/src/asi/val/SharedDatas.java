@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Parcel;
 import android.util.Log;
+import android.webkit.WebView;
 import android.widget.Toast;
 
 public class SharedDatas {
@@ -34,6 +35,8 @@ public class SharedDatas {
 
 	private ImageCache cache;
 
+	private String userAgent;
+
 	public SharedDatas(Context a) {
 		Log.d("ASI", "create shared");
 		this.articles_lues = new ArrayList<String>();
@@ -41,6 +44,7 @@ public class SharedDatas {
 		activity = a;
 		cache = new ImageCache(activity);
 		this.set_articles_lues();
+		userAgent = this.getDefaultUserAgentString();
 	}
 
 	public void setContext(Context a) {
@@ -53,6 +57,10 @@ public class SharedDatas {
 
 	public ImageCache getImageCache() {
 		return cache;
+	}
+
+	public String getUserAgent() {
+		return userAgent;
 	}
 
 	public Bitmap createVideoThumbnail(String filePath) {
@@ -403,6 +411,27 @@ public class SharedDatas {
 			Log.e("ASI", "ACCÈS aux données partagées " + e.getMessage());
 		} finally {
 			return (temp);
+		}
+	}
+
+	private String getDefaultUserAgentString() {
+		try {
+			// Constructor<WebSettings> constructor = WebSettings.class
+			// .getDeclaredConstructor(Context.class, WebView.class);
+			// constructor.setAccessible(true);
+			// try {
+			// WebSettings settings = constructor.newInstance(activity, null);
+			// Log.d("ASI", "UserAgent=" + settings.getUserAgentString());
+			// return settings.getUserAgentString();
+			// } finally {
+			// constructor.setAccessible(false);
+			// }
+			String user = new WebView(this.activity).getSettings().getUserAgentString();
+			Log.d("ASI", "UserAgent=" + user);
+			return user;
+		} catch (Exception e) {
+			Log.d("ASI", "Probleme de recuperation de l'user-agent");
+			return "Mozilla/5.0 (Linux; U; Android 2.3.4; fr-fr; HTC Desire Build/GRJ22) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
 		}
 	}
 }

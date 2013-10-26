@@ -61,9 +61,9 @@ public class PageRecherche {
 		OutputStreamWriter out = null;
 		try {
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
 			conn.setDoOutput(true);
-
+			conn.setRequestProperty("User-Agent", SharedDatas.shared.getUserAgent());
+			
 			// On écrit le post si il y a des choses à écrire ?
 			out = new OutputStreamWriter(conn.getOutputStream());
 			out.write(post);

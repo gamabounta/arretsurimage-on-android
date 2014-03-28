@@ -61,9 +61,9 @@ public class PageRecherche {
 		OutputStreamWriter out = null;
 		try {
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
 			conn.setDoOutput(true);
-			conn.setRequestProperty("User-Agent", SharedDatas.shared.getUserAgent());
-			
+
 			// On écrit le post si il y a des choses à écrire ?
 			out = new OutputStreamWriter(conn.getOutputStream());
 			out.write(post);
@@ -151,7 +151,7 @@ public class PageRecherche {
 					if(ligneCodeHTML.contains("typo-titre")){
 						m = url.matcher(ligneCodeHTML);
 						if(m.find())
-							article.setUri("http://www.arretsurimages.net"+m.group(1));
+							article.setUri(m.group(1)); //"http://www.arretsurimages.net"+
 						else
 							Log.e("ASI","Pas d'URL");
 						m = titre.matcher(ligneCodeHTML);

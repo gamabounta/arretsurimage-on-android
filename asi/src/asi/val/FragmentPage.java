@@ -83,6 +83,7 @@ public class FragmentPage extends FragmentAsiBase {
 	private class myWebViewClient extends WebViewClient {
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
 			try {
+				Log.d("ASI", "Open url : " + url);
 				if (url.matches(".*arretsurimages\\.net.*")) {
 					if (url.matches(".*mp3.*")) {
 						Log.d("ASI", "Audio-" + url);
@@ -91,7 +92,7 @@ public class FragmentPage extends FragmentAsiBase {
 						intent.setDataAndType(Uri.parse(url), "audio/*");
 						FragmentPage.this.startActivity(intent);
 					} else if (url
-							.matches(".*arretsurimages\\.net\\/contenu.*")) {
+							.matches(".*arretsurimages\\.net\\/chroniques.*")) {
 						Log.d("ASI", "Chargement arrêt sur image");
 						Intent i = new Intent(FragmentPage.this.getActivity(),
 								ActivityPage.class);
@@ -99,7 +100,25 @@ public class FragmentPage extends FragmentAsiBase {
 						art.setUri(url);
 						i.putExtra("article", art);
 						FragmentPage.this.startActivity(i);
-					} else if (url.matches(".*arretsurimages\\.net\\/vite.*")) {
+					} else if (url
+							.matches(".*arretsurimages\\.net\\/emissions.*")) {
+						Log.d("ASI", "Chargement arrêt sur image");
+						Intent i = new Intent(FragmentPage.this.getActivity(),
+								ActivityPage.class);
+						Article art = new Article();
+						art.setUri(url);
+						i.putExtra("article", art);
+						FragmentPage.this.startActivity(i);
+					} else if (url
+							.matches(".*arretsurimages\\.net\\/articles.*")) {
+						Log.d("ASI", "Chargement arrêt sur image");
+						Intent i = new Intent(FragmentPage.this.getActivity(),
+								ActivityPage.class);
+						Article art = new Article();
+						art.setUri(url);
+						i.putExtra("article", art);
+						FragmentPage.this.startActivity(i);
+					} else if (url.matches(".*arretsurimages\\.net\\/breves.*")) {
 						Log.d("ASI", "Chargement arrêt sur image");
 						Intent i = new Intent(FragmentPage.this.getActivity(),
 								ActivityPage.class);
@@ -152,12 +171,12 @@ public class FragmentPage extends FragmentAsiBase {
 
 					} else if (url.matches(".*arretsurimages\\.net\\/forum.*")) {
 						FragmentPage.this.listener.onForumLink(url);
-					} else if (url
+/*					} else if (url
 							.matches(".*arretsurimages\\.net\\/emission.*")) {
 						Toast.makeText(
 								FragmentPage.this.getActivity(),
 								"Ce lien n'est pas visible sur l'application Android",
-								Toast.LENGTH_LONG).show();
+								Toast.LENGTH_LONG).show();*/
 					} else {
 						Toast.makeText(
 								FragmentPage.this.getActivity(),

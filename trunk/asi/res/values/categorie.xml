@@ -66,15 +66,12 @@
 		<item>"D@ns le texte;"</item>
 		<item>http://www.arretsurimages.net/rss/emissions-dlt.rss</item>
 		<item>pola_dt</item>
-		<item>"@u prochain épisode"</item>
-		<item>http://www.arretsurimages.net/rss/emissions-ape.rss</item>
-		<item>kro_rafik</item>
-		<item>"@ux sources"</item>
-		<item>http://www.arretsurimages.net/rss/emissions-src.rss</item>
-		<item>pola_auxsources</item>
 		<item>"14H42"</item>
 		<item>http://www.arretsurimages.net/rss/emissions-14h42.rss</item>
-		<item>pola_14h42</item>		
+		<item>pola_14h42</item>
+		<item>"C'est p@s qu'un jeu"</item>
+		<item>http://www.arretsurimages.net/emissions-CPQJ.rss</item>
+		<item>pola_cpqj</item>
 	</string-array>
 	<string-array name="subcatC">
 		<item>"Toutes les chroniques"</item>
@@ -101,17 +98,20 @@
 		<item>Chez Judith</item>
 		<item>http://www.arretsurimages.net/rss/chroniqueur.5.rss</item>
 		<item>kro_judith</item>
-		<item>Chez Sébastien</item>
-		<item>http://www.arretsurimages.net/rss/chroniqueur.3.rss</item>
-		<item>kro_sebastien</item>
-		<item>Chez Normaland</item>
-		<item>http://www.arretsurimages.net/rss/chroniqueur.28.rss</item>
-		<item>pola_norma</item>
+		<item>Chez Georges</item>
+		<item>http://www.arretsurimages.net/rss/chroniqueur.32.rss</item>
+		<item>kro_georges</item>
 		<item>Ancienne chronique</item>
 		<item>subcatCold</item>
 		<item>kro</item>
 	</string-array>
 	<string-array name="subcatCold">
+	    <item>Chez Sébastien</item>
+		<item>http://www.arretsurimages.net/rss/chroniqueur.3.rss</item>
+		<item>kro_sebastien</item>
+		<item>Chez Normaland</item>
+		<item>http://www.arretsurimages.net/rss/chroniqueur.28.rss</item>
+		<item>pola_norma</item>
 		<item>Chez Anne-Sophie</item>
 		<item>http://www.arretsurimages.net/rss/chroniqueur.14.rss</item>
 		<item>kro_anso</item>

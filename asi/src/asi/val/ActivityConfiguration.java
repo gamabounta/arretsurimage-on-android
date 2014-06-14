@@ -18,7 +18,7 @@ public class ActivityConfiguration extends ActivityAsiBase implements
 		OnConfigSelectedListener, OnAuthenfiedListener {
 
 	private int[] liste = new int[] { R.array.conf_login,
-			R.array.conf_autologin, R.array.conf_dlsync,
+			R.array.conf_autologin, R.array.conf_dlsync, R.array.conf_dlvideo,
 			R.array.conf_view_image, R.array.conf_view_desc,
 			R.array.conf_view_date, R.array.conf_zoom_enable,
 			R.array.conf_zoom_level };
@@ -93,6 +93,9 @@ public class ActivityConfiguration extends ActivityAsiBase implements
 		case R.array.conf_dlsync:
 			this.setPreferenceDownload(title);
 			return;
+		case R.array.conf_dlvideo:
+			this.setPreferenceActes(title);
+			return;
 		default:
 			// Si aucun, simplement boolean
 			this.setPreferenceBoolean(title, config[0]);
@@ -132,6 +135,25 @@ public class ActivityConfiguration extends ActivityAsiBase implements
 					public void onClick(DialogInterface dialog, int item) {
 						boolean check = items[item].equals("Parallèle");
 						ActivityConfiguration.this.get_datas().setDlSync(check);
+						dialog.dismiss();
+					}
+				});
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+	
+	private void setPreferenceActes(String title) {
+		final CharSequence[] items = { "Integral", "Actes" };
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(title);
+		int posi = 0;
+		if (this.get_datas().isDlVideoActe())
+			posi = 1;
+		builder.setSingleChoiceItems(items, posi,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int item) {
+						boolean check = items[item].equals("Actes");
+						ActivityConfiguration.this.get_datas().setDlVideoActe(check);
 						dialog.dismiss();
 					}
 				});

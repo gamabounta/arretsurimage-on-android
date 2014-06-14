@@ -15,6 +15,11 @@
 		<item>Type de téléchargement</item>
 		<item>"Choisir le type de téléchargement souhaité"</item>
 	</string-array>
+	<string-array name="conf_dlvideo">
+		<item>dlsync</item>
+		<item>Type de vidéos</item>
+		<item>"Choisir le type de vidéos à télécharger"</item>
+	</string-array>
 	<string-array name="conf_view_image">
 		<item>image_enabled</item>
 		<item>Image visible</item>

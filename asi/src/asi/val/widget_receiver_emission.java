@@ -87,12 +87,22 @@ public class widget_receiver_emission extends AppWidgetProvider {
 		this.defined_intent(context, views, appWidgetIds);
 		appWidgetManager.updateAppWidget(appWidgetIds, views);
 		if (videos.size() != 0) {
+			ArrayList<Video> goodVideo = new ArrayList<Video>();
+			boolean isDlActe = this.get_datas(context).isDlVideoActe();
+			for (Video vid : videos){
+				if (vid.isActe()==isDlActe){
+					goodVideo.add(vid);
+				}
+			}
+			if (goodVideo.isEmpty()){
+				goodVideo = videos;
+			}
 			Toast.makeText(context,
-					"Ajouts de " + videos.size() + " vidéos à télécharger",
+					"Ajouts de " + goodVideo.size() + " vidéos à télécharger",
 					Toast.LENGTH_SHORT).show();
-			for (Video vid : videos) {
+			for (Video vid2 : goodVideo) {
 				Intent i = new Intent(context, ServiceDownload.class);
-				i.putExtra("video", vid);
+				i.putExtra("video", vid2);
 				i.putExtra("dlsync", this.get_datas(context).isDlSync());
 				context.startService(i);
 			}

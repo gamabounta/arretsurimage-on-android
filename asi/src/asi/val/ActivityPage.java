@@ -205,33 +205,39 @@ public class ActivityPage extends ActivityAsiBase implements
 
 	public void setVideo(ArrayList<Video> videos2) {
 		// AJoute le bouton si video n'est pas vide
-		this.videos = videos2;
+		if (videos2 != null){
+			ArrayList<Video> tmp = new ArrayList<Video>();
+			boolean isDlActe = ActivityPage.this.get_datas().isDlVideoActe();
+			for (Video vid : videos2){
+				if (vid.isActe()==isDlActe){
+					tmp.add(vid);
+				}
+			}
+			if (tmp.isEmpty()){
+				this.videos = videos2;
+			}else{
+				this.videos = tmp;
+			}
+		}
 	}
 
 	public void telecharger_actes() {
-		final int nb_actes = videos.size();
-
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Vidéos de l'article");
 
 		builder.setMessage("Voulez-vous lancer le téléchargement des "
-				+ nb_actes + " vidéos de cette article?");
+				+ videos.size() + " vidéos de cette article?");
 		builder.setNegativeButton("Non", null);
 		builder.setPositiveButton("Oui", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
-				Video video_selected = null;
-				for (int i = 0; i < nb_actes; i++) {
-					// if(items_selected[i]) {
-					video_selected = videos.get(i);
-					video_selected.setNumber(i + 1);
-					video_selected.setTitle(article.getTitle());
+				for (Video vid : videos) {
+					vid.setTitle(article.getTitle());
 					Intent intent = new Intent(getApplicationContext(),
 							ServiceDownload.class);
 					intent.putExtra("dlsync", ActivityPage.this.get_datas()
 							.isDlSync());
-					intent.putExtra("video", video_selected);
+					intent.putExtra("video", vid);
 					ActivityPage.this.startService(intent);
-					// }
 				}
 			}
 		});
@@ -337,14 +343,14 @@ public class ActivityPage extends ActivityAsiBase implements
 	}
 
 	public void onVideoLink(final String url) {
-		final CharSequence[] items = { "Visionner", "Télécharger" };
+		final CharSequence[] items = { "Visionner", "Télécharger", "Aller sur Dailymotion" };
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Vidéo android");
 		builder.setItems(items, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int item) {
 				if (items[item].equals("Visionner")) {
 					new get_video_url().execute(url);
-				} else {
+				} else if (items[item].equals("Télécharger")) {
 					Log.d("ASI", "DownloadVideo");
 					Intent i = new Intent(ActivityPage.this
 							.getApplicationContext(), ServiceDownload.class);
@@ -354,6 +360,12 @@ public class ActivityPage extends ActivityAsiBase implements
 					vid.setTitle(ActivityPage.this.article.getTitle());
 					i.putExtra("video", vid);
 					ActivityPage.this.startService(i);
+				} else {
+					Intent i = new Intent(Intent.ACTION_VIEW);
+					Video vid2 = new Video(url);
+					Uri u = Uri.parse(vid2.getURL());
+					i.setData(u);
+					startActivity(i);
 				}
 			}
 		});

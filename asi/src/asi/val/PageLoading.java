@@ -145,14 +145,9 @@ public class PageLoading {
 					ligneCodeHTML = ligneCodeHTML.replaceAll("<td.*?>", "<p>");
 					ligneCodeHTML = ligneCodeHTML.replaceAll("</td>", "</p>");
 
-					// on remplace le lien dailymotion vers celui pour l'iphone
-					ligneCodeHTML = ligneCodeHTML.replaceAll(
-							"www.dailymotion.com/video",
-							"iphone.dailymotion.com/video");
-
 					// on enlève les animations flash et recupère les vidéos
-					// iphone
-					if (ligneCodeHTML.matches(".*iphone\\.dailymotion\\.com.*")) {
+					// iphone 
+					if (ligneCodeHTML.matches(".*www\\.dailymotion\\.com\\/embed\\/video.*")) {
 						Video video = new Video();
 						String s = video.parse_to_url(ligneCodeHTML);
 						if (s == null)
@@ -162,6 +157,7 @@ public class PageLoading {
 						else {
 							video_count++;
 							video.setNumber(video_count);
+							video.defined_actes(ligneCodeHTML);
 							videos.add(video);
 							ligneCodeHTML = video.get_href_link_url();
 						}
@@ -181,23 +177,42 @@ public class PageLoading {
 											+ mp3
 											+ "\" target=\"_blank\">&gt; Écouter l'extrait audio &lt;</a>");
 						} else {
-							// Pattern p2 = Pattern
-							// .compile(".*src\\=\"(.*?www.youtube.com.*?)\".*");
-							// Matcher m2 = p2.matcher(ligneCodeHTML);
-							// if (m2.matches()) {
-							// Log.d("ASI","video="+m2.group(1));
-							// ligneCodeHTML = this
-							// .center("<a href=\""
-							// + m2.group(1)
-							// +
-							// "\" target=\"_blank\">&gt; Regarder la vidéo Youtube &lt;</a>");
-							//
-							// value="http://www.youtube.com/v/XkRRdth8AHc?fs=1&amp;hl=fr_FR">
-							// } else
+							Pattern p2 = Pattern
+									.compile(".*src\\=\"(http\\:\\/\\/www\\.dailymotion\\.com\\/swf\\/video.*?)\\?.*");
+							Matcher m2 = p2.matcher(ligneCodeHTML);
+							//src="http://www.dailymotion.com/swf/video/k4Rs7vwEvLTrrL86Ikf?
+							if (m2.matches()){
+								String daylimotion = m2.group(1).replaceAll("swf/", "");
+								Video video = new Video(daylimotion);
+								video_count++;
+								video.setNumber(video_count);
+								video.defined_actes(ligneCodeHTML);
+								videos.add(video);
+								ligneCodeHTML = video.get_href_link_url();
+							}else  {
+								ligneCodeHTML = this
+									.center("<span>&gt; Cette vidéo n'est pas visible sur Android &lt;</span>");
+							}	
+						}
+
+					}
+					//on cherche video youtube iframe
+					if (ligneCodeHTML.matches(".*\\<iframe.*\\<\\/iframe\\>.*")) {
+						Pattern p = Pattern
+								.compile(".*src\\=\".*?(www\\.youtube.com\\/embed\\/.*?)\".*");
+						Matcher m = p.matcher(ligneCodeHTML);
+						if (m.matches()) {
+							String youtube = "http://" + m.group(1).replaceAll("embed", "video");
+							ligneCodeHTML = this
+									.center("<a href=\""
+											+ youtube
+											+ "\" target=\"_blank\">&gt; Voir la video youtube &lt;</a>");
+
+						}else {
 							ligneCodeHTML = this
 									.center("<span>&gt; Cette vidéo n'est pas visible sur Android &lt;</span>");
 						}
-
+						//src="//www.youtube.com/embed/33z42X2ayeQ"
 					}
 
 					// on enlève le bouton télécharger

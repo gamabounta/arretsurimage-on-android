@@ -206,6 +206,20 @@ public class SharedDatas {
 				0);
 		return settings.getBoolean("dlsync", false);
 	}
+	
+	public void setDlVideoActe(boolean dlvideo) {
+		SharedPreferences settings = activity.getSharedPreferences(PREFERENCE,
+				0);
+		Editor editor = settings.edit();
+		editor.putBoolean("dlvideo", dlvideo);
+		editor.commit();
+	}
+
+	public boolean isDlVideoActe() {
+		SharedPreferences settings = activity.getSharedPreferences(PREFERENCE,
+				0);
+		return settings.getBoolean("dlvideo", true);
+	}
 
 	public void setAutologin(boolean autologin) {
 		SharedPreferences settings = activity.getSharedPreferences(PREFERENCE,

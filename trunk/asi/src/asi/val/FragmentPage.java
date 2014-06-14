@@ -189,7 +189,7 @@ public class FragmentPage extends FragmentAsiBase {
 					}
 					return true;
 				} else if (url
-						.matches(".*http\\:\\/\\/iphone\\.dailymotion\\.com.*")) {
+						.matches("http\\:\\/\\/www\\.dailymotion\\.com\\/video.*")) {
 					Log.d("ASI", "Chargement video");
 					FragmentPage.this.listener.onVideoLink(url);
 					return (true);

@@ -37,12 +37,15 @@ public class Video implements Parcelable {
 	
 	private String image;
 	
+	private boolean acte;
+
 	public Video(String url) {
 		this.dailymotion = "";
 		this.title = "ASI";
 		this.image="";
 		this.number = 0;
 		this.set_dailymotion_url(url);
+		this.acte = false;
 	}
 
 	public Video() {
@@ -50,25 +53,32 @@ public class Video implements Parcelable {
 		this.title = "ASI";
 		this.image="";
 		this.number = 0;
+		this.acte=false;
+	}
+	
+	public void defined_actes(String lignecode){
+		Pattern p = Pattern.compile(".*width=\"(\\d+)\".*");
+		Matcher m = p.matcher(lignecode);
+		if (m.matches()){
+			try{
+				if (Integer.parseInt(m.group(1)) <= 360){
+					this.acte = true;
+				}
+			}catch(Exception e){
+			}
+		}
 	}
 
 	public String parse_to_url(String asi) {
 		Log.d("ASI","Recherche de vidéos");
 		Pattern p = Pattern
-				.compile(".*\\<a href\\=\"(http\\:\\/\\/iphone\\.dailymotion\\.com.*)\" title=\"voir.*");
+		//		.compile(".*\\<a href\\=\"(http\\:\\/\\/iphone\\.dailymotion\\.com.*)\" title=\"voir.*");
+				.compile(".*src\\=\"(http\\:\\/\\/www\\.dailymotion\\.com\\/embed\\/video.*?)\".*");
 		Matcher m = p.matcher(asi);
 		if (m.matches()) {
 			Log.d("ASI","Recherche de vidéos : vidéos trouvées");
-			String s = m.group(1);
+			String s = m.group(1).replace("embed/", "");
 			this.set_dailymotion_url(s);
-
-			Pattern p2 = Pattern.compile(".*\\<img src\\=\"(\\/media.*)\" alt=\"voir.*");
-			Matcher m2= p2.matcher(asi);
-			if (m2.matches()) {
-				this.image=m2.group(1);
-				this.image=this.image.replace("player_s", "player_l");
-			}
-			//<a href="http://iphone.dailymotion.com/video/k5IEm7VP5FwY0m1BoPS" title="voir la vidéo"><img src="/media//library/s290/id28917/player_s.png" alt="voir la vidéo"></a>
 			return (s);
 		} else
 			return (null);
@@ -78,8 +88,7 @@ public class Video implements Parcelable {
 		//String link = this.get_relink_adress();
 		//String link = this.get_download_url();
 		String href = "<p style=\"text-align: center;\"><a href=\"" + dailymotion+ "&vidnum="+number
-				+ "\" target=\"_blank\">" + "<img src=\""+this.image+"\" alt=\"voir la vidéo\">"
-				+ "<span><br/>&gt; Cliquez pour voir la vidéo &lt;</span></a></p>";
+				+ "\" target=\"_blank\">" + "<span><br/>&gt; Cliquez pour voir la vidéo &lt;</span></a></p>";
 		// <a href="http://www.bernard-mabille.com/" target="_blank">Bernard
 		// Mabille</a>
 		return (href);
@@ -119,17 +128,21 @@ public class Video implements Parcelable {
 		String link = "";
 		BufferedReader in = null;
 		try {
-			URL url = new URL(dailymotion.replace("iphone", "www"));
+			//URL url = new URL(dailymotion.replace("iphone", "www"));
+			URL url = new URL(this.dailymotion);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setDoOutput(true);
+			//conn.addRequestProperty("User-Agent","Mozilla/5.0 (Android; Mobile; rv:23.0) Gecko/23.0 Firefox/23.0");
+			conn.addRequestProperty("User-Agent","Mozilla/5.0 (X11; U; Linux i686; rv:29.0) Gecko/20100101 Firefox/29.0");
 
 			in = new BufferedReader(
-					new InputStreamReader(conn.getInputStream()));
+					new InputStreamReader(conn.getInputStream(), "UTF-8"), 8192);
 			String ligneCodeHTML;
 			//Pattern p = Pattern.compile(".*type=\"video/x-m4v\" href=\"(.*)\" src=.*");
 			Pattern p = Pattern.compile(".*video_url.*?(http.*?)%22.*");
 			// video_url%22%3A%22http%253A%252F%252Fwww.dailymotion.com%252Fcdn%252FH264-512x384%252Fvideo%252Fxx0vzt.mp4%253Fauth%253D1359695428-b214027f38c08f78662c9fd2dcb555ba%22
 			while ((ligneCodeHTML = in.readLine()) != null) {
+				//Log.d("dailymotion",ligneCodeHTML);
 				Matcher m = p.matcher(ligneCodeHTML);
 				if (m.matches()){
 					link = m.group(1);
@@ -214,6 +227,9 @@ public class Video implements Parcelable {
 		return(s);
 	}
 	
+	public boolean isActe() {
+		return acte;
+	}
 	
 	public static final Parcelable.Creator<Video> CREATOR = new Parcelable.Creator<Video>() {
 		public Video createFromParcel(Parcel in) {
@@ -230,6 +246,7 @@ public class Video implements Parcelable {
 		this.title = in.readString();
 		this.number = in.readInt();
 		this.image = in.readString();
+		this.acte = in.readByte() != 0;
 	}
 
 	public int describeContents() {
@@ -241,5 +258,6 @@ public class Video implements Parcelable {
 		out.writeString(this.title);
 		out.writeInt(this.number);
 		out.writeString(this.image);
+		out.writeByte((byte) (this.acte ? 1 : 0));
 	}
 }
